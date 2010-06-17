@@ -9,11 +9,13 @@
 			<label index="tx_dam.tx_jhedamextender_usage">Usage for</label>
 			<label index="tx_jhedamextender_usage">Media usage</label>
 			<label index="tx_jhedamextender_usage.usage_ea619ffddc">Usage</label>
+			<label index="tt_content.list_type_pi1">DAM special usage</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="tx_dam.tx_jhedamextender_usage">Verwendung für</label>
 			<label index="tx_jhedamextender_usage">Medienverwendung</label>
 			<label index="tx_jhedamextender_usage.usage_ea619ffddc">Verwendung</label>
+			<label index="tt_content.list_type_pi1">DAM spezielle Verwendung</label>
 		</languageKey>
 	</data>
 </T3locallang>
