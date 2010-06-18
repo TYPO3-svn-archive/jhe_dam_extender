@@ -114,9 +114,14 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 			$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
 			$this->internal['maxPages']=t3lib_div::intInRange($lConf['maxPages'],0,1000,2);;		// The maximum number of "pages" in the browse-box: "Page 1", "Page 2", etc.
 			$this->internal['searchFieldList']='title';
+			$this->internal['groupBy'] = 'file_path';
+			$this->internal['orderBy'] = '';
 			$this->internal['orderByList']='title';
 			$this->internal['currentTable'] = 'tx_dam';
-			$this->internal['where'] = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectCategory'] . ' AND tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsage']; 
+			$this->internal['where'] = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectCategory'];
+				$this->internal['where'] .= ' AND ((tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsage'] . ')';
+				$this->internal['where'] .= ' OR (tx_dam.tx_jhedamextender_usage != ' . $this->conf['specialUsage'] .' AND tx_dam.file_path LIKE \'fileadmin/Mediendatenbank/Produktmappe/%\'))';
+			
 			
 			#$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1; 
 
@@ -136,7 +141,9 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 				$this->internal['currentTable'],
 				'tx_dam_mm_cat',
 				'tx_dam_cat',
-				$this->internal['where']
+				$this->internal['where'],
+				''.
+				$this->internal['orderBy']
 			);
 
 			#$fullTable.=t3lib_div::debug($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery);
@@ -264,7 +271,9 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 			'altText' => 'Download starten...'
 		);
 		
-		$out .= '
+		$folder = substr($this->getFieldContent('file_path'),26, -1);
+		
+		$out .= '<h4>' . $folder . '</h4>
 			<div' . $this->pi_classParam('listrow') . '>' .
 				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . '</div>' . 
 				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->getFieldContent('file_size') . ' Byte</div>' .
