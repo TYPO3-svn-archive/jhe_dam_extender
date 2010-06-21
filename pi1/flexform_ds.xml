@@ -43,6 +43,15 @@
 					</config>
 				</TCEforms>
 			</specialUsage>
+			<folderSpecialUsage>
+				<TCEforms>
+					<label>Verzeichnis für spezielle Verwendung</label>
+					<config>
+						<type>group</type>
+						<internal_type>folder</internal_type>
+					</config>
+				</TCEforms>
+			</folderSpecialUsage>
 			<viewMode>
 				<TCEforms>
 					<label>Ausgabe</label>

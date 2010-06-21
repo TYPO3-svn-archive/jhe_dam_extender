@@ -1,0 +1,8 @@
+# cat=basic; type=string; label=DAM main storage folder with media data
+mainFolder = 
+
+# cat=basic; type=string; label= Types of files that can be rendered as preview pics via ImageMagick
+graphicFileTypes = gif,jpg,jpeg,tif,bmp,pcx,tga,png,pdf,ai
+
+# cat=basic; type=string; label=DAM storage folder fpr special usage of media data
+specialFolders =
