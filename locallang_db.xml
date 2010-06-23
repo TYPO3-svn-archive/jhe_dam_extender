@@ -10,12 +10,14 @@
 			<label index="tx_jhedamextender_usage">Media usage</label>
 			<label index="tx_jhedamextender_usage.usage_ea619ffddc">Usage</label>
 			<label index="tt_content.list_type_pi1">DAM special usage</label>
+			<label index="tt_content.list_type_pi2">DAM category menue</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="tx_dam.tx_jhedamextender_usage">Verwendung für</label>
 			<label index="tx_jhedamextender_usage">Medienverwendung</label>
 			<label index="tx_jhedamextender_usage.usage_ea619ffddc">Verwendung</label>
 			<label index="tt_content.list_type_pi1">DAM spezielle Verwendung</label>
+			<label index="tt_content.list_type_pi2">DAM Kategoriemenü</label>
 		</languageKey>
 	</data>
 </T3locallang>

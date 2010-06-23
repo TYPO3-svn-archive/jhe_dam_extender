@@ -124,7 +124,6 @@ class ajax_downloadSpecialUsage {
 
 		return $countFiles . '|' . $path . '|' . $filename;
 	}
-
 }
 
 $output = t3lib_div::makeInstance('ajax_downloadSpecialUsage');
