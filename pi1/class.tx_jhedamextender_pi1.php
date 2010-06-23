@@ -29,13 +29,13 @@
  *   55: class tx_jhedamextender_pi1 extends tslib_pibase
  *   68:     function main($content, $conf)
  *   98:     function listView($content, $conf)
- *  218:     function makelist($res, $folder)
- *  253:     function makeListItem()
- *  403:     function singleView($content, $conf)
- *  439:     function getFieldContent($fN)
- *  456:     function getFieldHeader($fN)
- *  471:     function getFieldHeader_sortLink($fN)
- *  481:     public function getFolderNamesFromFilesystem($folder)
+ *  194:     function makelist($res, $folder)
+ *  231:     function makeListItem()
+ *  382:     function dlButtonView($content, $conf)
+ *  447:     function getFieldContent($fN)
+ *  464:     function getFieldHeader($fN)
+ *  479:     function getFieldHeader_sortLink($fN)
+ *  489:     public function getFolderNamesFromFilesystem($folder)
  *
  * TOTAL FUNCTIONS: 9
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -63,7 +63,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	 *
 	 * @param	string		$content: The content of the PlugIn
 	 * @param	array		$conf: The PlugIn Configuration
-	 * @return				The	content that should be displayed on the website
+	 * @return	The		content that should be displayed on the website
 	 */
 	function main($content, $conf)	{
 
@@ -170,7 +170,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 				''.
 				$this->internal['orderBy']
 			);
-			
+
 			//Getting the list for every directory which is not empty
 			if($this->internal['res_count_dir'] != 0) {
 				$fullTable.=$this->makelist($res, $dir);
@@ -187,9 +187,9 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	/**
 	 * Creates a list from a database query
 	 *
-	 * @param	ressource	$res: A database result ressource
+	 * @param	ressource		$res: A database result ressource
 	 * @param	[type]		$folder: String with section identifier
-	 * @return				A HTML list if result items
+	 * @return	A		HTML list if result items
 	 */
 	function makelist($res, $folder)	{
 		$items=array();
@@ -394,40 +394,46 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
 			<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 			<script type="text/javascript">
-				
+
 				$(document).ready(function() {
-					var username;
-					var password;
 					// AJAX Request per eID
 					$("#dlButton").bind("click", function() {
 						$.ajax({
 					    	url: "?eID=downloadSpecialUsage",
-					    	data: {username: username, password: password},
-					    	success: function(result) { alert(result); }
+					    	data:
+					    		"mediaFolder=' . $this->conf['mediaFolder'] .
+					    		'&selectCategory=' . $this->conf['selectCategory'] .
+					    		'&specialUsage=' . $this->conf['specialUsage'] .
+					    		'&folderSpecialUsage=' . $this->conf['folderSpecialUsage'] . '",
+					    	success: function(result) {
+					    		result = result.split("|");
+					    		$("#dlButtonResult").html("Es wurden " + result[0] + " Dateien zusammengefuehrt. Bitte nutzen Sie den folgenden Link zum herunterladen der Produktmappe:<br /><a href=\"" + result[1] + "\">" + result[2] + "</a>");
+							}
 						});
 					});
-			
+
 				});
-				
-			</script>			
+
+			</script>
 		';
-		
-		
-		
+
+
+
 		$content = '<div'.$this->pi_classParam('dlButtonView').'>
 						<input type="button" name="dlButton" id="dlButton" value="Download">
-					</div>';
-		
+					</div>
+					<div id="dlButtonResult"></div>';
+
 		$GLOBALS['TSFE']->additionalCSS[] = '.' . $this->pi_getClassName('dlButtonView') . ' {
 				padding: 3px 5px;
 				text-align: center;
 			}';
-		
+
 		$GLOBALS['TSFE']->additionalCSS[] = '.' . $this->pi_getClassName('dlButtonView') . ' input {
 				height: 100px;
 				width: 120px
 			}';
-		
+
 		return $content;
 	}
 	/**

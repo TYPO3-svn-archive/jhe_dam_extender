@@ -82,7 +82,6 @@ t3lib_extMgm::addPlugin(array(
 	t3lib_extMgm::extRelPath($_EXTKEY) . 'ext_icon.gif'
 ),'list_type');
 
-
 t3lib_extMgm::addStaticFile($_EXTKEY,'pi1/static/','DAM special usage');
 
 
