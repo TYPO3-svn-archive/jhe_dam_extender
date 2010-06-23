@@ -68,31 +68,23 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	 */
 	function main($content, $conf)	{
 
+		$selectedCategory = t3lib_div::_GET('damcat');
+		
 		$this->pi_initPIFlexForm();
 		$viewMode = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
+		$mediaFolder = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+		$specialUsage = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
+		$folderSpecialUsage = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'folderSpecialUsage');
 
 		switch($viewMode)	{
 			case 'dlButton':
-				
-				$selectedCategory = t3lib_div::_GET('damcat');
-				$this->pi_initPIFlexForm();
-				$mediaFolder = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
-				$specialUsage = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
-				$folderSpecialUsage = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'folderSpecialUsage');
-				
-				
-				$noOfChilds = $this->countChilds($selectedCategory, $mediaFolder);
-								
 				list($t) = explode(':',$this->cObj->currentRecord);
 				$this->internal['currentTable']=$t;
 				$this->internal['currentRow']=$this->cObj->data;
 				
-				$noOfFiles = $this->getNumberofFilesPerCategory($selectedCategory, $mediaFolder, $specialUsage, $folderSpecialUsage);
-				
-				if ($noOfChilds == 0 && $noOfFiles != 0) {
+				if ($this->countChilds($selectedCategory, $mediaFolder) == 0 && $this->getNumberofFilesPerCategory($selectedCategory, $mediaFolder, $specialUsage, $folderSpecialUsage) != 0) {
 					return $this->pi_wrapInBaseClass($this->dlButtonView($content, $conf));
 				}
-				
 			break;
 			case 'list':
 			default:
