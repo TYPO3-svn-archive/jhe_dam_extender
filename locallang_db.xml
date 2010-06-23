@@ -12,6 +12,7 @@
 			<label index="tt_content.list_type_pi1">DAM special usage</label>
 			<label index="tt_content.list_type_pi2">DAM category menue</label>
 			<label index="tt_content.list_type_pi3">DAM special usage menue</label>
+			<label index="tt_content.list_type_pi4">DAM file list</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="tx_dam.tx_jhedamextender_usage">Verwendung für</label>
@@ -20,6 +21,7 @@
 			<label index="tt_content.list_type_pi1">DAM spezielle Verwendung</label>
 			<label index="tt_content.list_type_pi2">DAM Kategoriemenü</label>
 			<label index="tt_content.list_type_pi3">DAM Navigationsmenü für spezielle Verwendungen</label>
+			<label index="tt_content.list_type_pi4">DAM Dateiliste</label>
 		</languageKey>
 	</data>
 </T3locallang>

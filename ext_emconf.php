@@ -3,7 +3,7 @@
 ########################################################################
 # Extension Manager/Repository config file for ext "jhe_dam_extender".
 #
-# Auto generated 23-06-2010 14:16
+# Auto generated 23-06-2010 15:08
 #
 # Manual updates:
 # Only the data in the array - everything else is removed by next

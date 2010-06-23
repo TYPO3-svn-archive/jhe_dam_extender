@@ -123,5 +123,22 @@ if (TYPO3_MODE == 'BE') {
     $TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']['tx_jhedamextender_pi3_wizicon'] = t3lib_extMgm::extPath($_EXTKEY).'pi3/class.tx_jhedamextender_pi3_wizicon.php';
 }
 
+t3lib_div::loadTCA('tt_content');
+$TCA['tt_content']['types']['list']['subtypes_excludelist'][$_EXTKEY.'_pi4']='layout,select_key,pages';
+$TCA['tt_content']['types']['list']['subtypes_addlist'][$_EXTKEY.'_pi4']='pi_flexform';
+t3lib_extMgm::addPiFlexFormValue($_EXTKEY . '_pi4', 'FILE:EXT:' . $_EXTKEY . '/pi4/flexform_ds.xml');
+
+
+t3lib_extMgm::addPlugin(array(
+    'LLL:EXT:jhe_dam_extender/locallang_db.xml:tt_content.list_type_pi4',
+    $_EXTKEY . '_pi4',
+    t3lib_extMgm::extRelPath($_EXTKEY) . 'ext_icon.gif'
+),'list_type');
+
+
+if (TYPO3_MODE == 'BE') {
+    $TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']['tx_jhedamextender_pi4_wizicon'] = t3lib_extMgm::extPath($_EXTKEY).'pi4/class.tx_jhedamextender_pi4_wizicon.php';
+}
+
 t3lib_extMgm::addStaticFile($_EXTKEY,'static/dam_extender/', 'DAM Extender');
 ?>

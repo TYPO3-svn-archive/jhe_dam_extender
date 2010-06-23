@@ -17,5 +17,7 @@ t3lib_extMgm::addPItoST43($_EXTKEY, 'pi2/class.tx_jhedamextender_pi2.php', '_pi2
 
 t3lib_extMgm::addPItoST43($_EXTKEY, 'pi3/class.tx_jhedamextender_pi3.php', '_pi3', 'list_type', 1);
 
+t3lib_extMgm::addPItoST43($_EXTKEY, 'pi4/class.tx_jhedamextender_pi4.php', '_pi4', 'list_type', 1);
+
 $TYPO3_CONF_VARS['FE']['eID_include']['downloadSpecialUsage'] = 'EXT:jhe_dam_extender/ajax/class.ajax_downloadSpecialUsage.php';
 ?>

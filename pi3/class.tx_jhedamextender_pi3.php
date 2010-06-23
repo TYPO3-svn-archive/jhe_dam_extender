@@ -92,7 +92,7 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 			'damcat' => $selectedCategory,
 			'no_cache' => 1
 		);
-		$pid = 1;
+		$pid = 9;
 		$target = '_self';
 
 		$result = $this->pi_linkToPage(
