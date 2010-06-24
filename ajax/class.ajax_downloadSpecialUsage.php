@@ -27,7 +27,7 @@ require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once(PATH_tslib.'class.tslib_eidtools.php');
 require_once(PATH_t3lib.'class.t3lib_div.php');
 
-class ajax_downloadSpecialUsage {
+class ajax_downloadSpecialUsage extends tslib_pibase {
 
 	/**
 	 * Main Methode

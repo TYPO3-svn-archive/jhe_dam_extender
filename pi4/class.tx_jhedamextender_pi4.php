@@ -59,119 +59,29 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 		
 		$this->pi_initPIFlexForm();
 		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+			
 		
-	
-	
-		return $this->pi_wrapInBaseClass($this->listView($content, $this->conf));
-	}
-	
-	function listView($content, $conf) {
-		$this->conf = $conf;		// Setting the TypoScript passed to this function in $this->conf
-		
-		$this->pi_setPiVarDefaults();
-		$this->pi_loadLL();		// Loading the LOCAL_LANG values
-
-		#$this->conf['selectCategory'] = t3lib_div::_GET('damcat');
-
-		#$lConf = $this->conf['listView.'];	// Local settings for the listView function
-
 		$fullTable = '';	// Clear var;
-		$fullTable .= '<h3>Kategorie: ' . $this->getCategoryHeader($this->conf['selectedCategory'], $this->conf['mediaFolder']) . '</h3>';
+		#$fullTable .= '<h3>Kategorie: ' . $this->getCategoryHeader($this->conf['selectedCategory'], $this->conf['mediaFolder']) . '</h3>';
 
 		//Initializing global query params
 		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-		$mainFolder =$this->extconf['mainFolder'];
-		$dirsFromFileSystem = $this->getFolderNamesFromFilesystem($mainFolder);
-		#var_dump($dirsFromFileSystem);
-		$specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf['mediaFolder'], $this->conf['selectedCategory'], $mainFolder); 
-		#var_dump($specialUsageItemDirs);
-		
-		$arrResult = array_diff($dirsFromFileSystem, $specialUsageItemDirs);
-		#var_dump($arrResult);
-		
-		
-		
-		
-		
-		
-		
-		foreach($arrResult as $type){
-			$docType .= $type . ' '; 
-		}
-		
-		$fullTable .= '
-			<h3>Dokumentarten</h3>
-			<div>'. $docType . '<div>
-			';
-		
-		list($this->internal['orderBy'],$this->internal['descFlag']) = explode(':',$this->piVars['sort']);
-		$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
-		$this->internal['maxPages']=t3lib_div::intInRange($lConf['maxPages'],0,1000,2);;		// The maximum number of "pages" in the browse-box: "Page 1", "Page 2", etc.
-		$this->internal['searchFieldList']='title';
-		$this->internal['groupBy'] = 'file_path';
-		$this->internal['orderBy'] = '';
-		$this->internal['orderByList']='title';
-		$this->internal['currentTable'] = 'tx_dam';
+		$this->conf['mainFolder'] =$this->extconf['mainFolder'];
+				
+		//Creating menue from dam directories 
+		$fullTable .= $this->createNavPerDocumenttypes($this->conf);
 
-		$this->internal['where'] = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		$this->internal['where'] .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-		#$this->internal['where'] .= ' AND ((tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsage'] . ')';
-		#$this->internal['where'] .= ' OR (tx_dam.tx_jhedamextender_usage != ' . $this->conf['specialUsage'] .' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
-
-		//Count all results
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-			'COUNT(\'tx_dam.*\')',
-			$this->internal['currentTable'],
-			'tx_dam_mm_cat',
-			'tx_dam_cat',
-			$this->internal['where']
-		);
-		list($this->internal['res_count']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-
-		//SQL-Query based on existing dirs in filesystem
-		foreach ($dirsFromFileSystem as $dir){
-			$filePath = $mainFolder . $dir . '/';
-			$this->internal['where'] = '';
-			$this->internal['where'] = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-			$this->internal['where'] .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'] . ' AND tx_dam.file_path = \'' . $filePath . '\'';
-			#$this->internal['where'] .= ' AND ((tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsage'] . ')';
-			#$this->internal['where'] .= ' OR (tx_dam.tx_jhedamextender_usage != ' . $this->conf['specialUsage'] .' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
-
-			//Count results per directory
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-				'COUNT(\'tx_dam.*\')',
-				$this->internal['currentTable'],
-				'tx_dam_mm_cat',
-				'tx_dam_cat',
-				$this->internal['where']
-			);
-			list($this->internal['res_count_dir']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-
-			// Make listing query, pass query to SQL database:
-			$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-				'tx_dam_cat.title as catTitle, tx_dam.*',
-				$this->internal['currentTable'],
-				'tx_dam_mm_cat',
-				'tx_dam_cat',
-				$this->internal['where'],
-				''.
-				$this->internal['orderBy']
-			);
-
-			//Getting the list for every directory which is not empty
-			if($this->internal['res_count_dir'] != 0) {
-				$fullTable.=$this->makelist($res, $dir);
-			}
-		}
-
-		// Adds the result browser:
-		$fullTable.=$this->pi_list_browseresults();
-
+		$fullTable .= '<div id="docsByType">Platzhalter</div>';
+		
 		// Returns the content from the plugin.
+		#return $fullTable;
+		
+		
+		#return $this->pi_wrapInBaseClass($fullTable);
 		return $fullTable;
 	}
 	
-function makelist($res, $folder)	{
+	/*function makelist($res, $folder)	{
 		$items=array();
 			// Make list table rows
 		while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
@@ -201,14 +111,14 @@ function makelist($res, $folder)	{
 			}';
 
 		return $out;
-	}
+	}*/
 
 	/**
 	 * Implodes a single row from a database to a single line
 	 *
 	 * @return	Imploded		column values
 	 */
-	function makeListItem()	{
+	/*function makeListItem()	{
 
 		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 		$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
@@ -351,7 +261,7 @@ function makelist($res, $folder)	{
 			}';
 
 		return $out;
-	}
+	}*/
 	
 	/**
 	 * Returns the content of a given field
@@ -359,7 +269,7 @@ function makelist($res, $folder)	{
 	 * @param	string		$fN: name of table field
 	 * @return	Value		of the field
 	 */
-	function getFieldContent($fN)	{
+	/*function getFieldContent($fN)	{
 		switch($fN) {
 			case 'uid':
 				return $this->pi_list_linkSingle($this->internal['currentRow'][$fN],$this->internal['currentRow']['uid'],1);	// The "1" means that the display of single items is CACHED! Set to zero to disable caching.
@@ -369,21 +279,21 @@ function makelist($res, $folder)	{
 				return $this->internal['currentRow'][$fN];
 			break;
 		}
-	}
+	}*/
 	/**
 	 * Returns the label for a fieldname from local language array
 	 *
 	 * @param	[type]		$fN: ...
 	 * @return	[type]		...
 	 */
-	function getFieldHeader($fN)	{
+	/*function getFieldHeader($fN)	{
 		switch($fN) {
 
 			default:
 				return $this->pi_getLL('listFieldHeader_'.$fN,'['.$fN.']');
 			break;
 		}
-	}
+	}*/
 
 	/**
 	 * Returns a sorting link for a column header
@@ -391,9 +301,9 @@ function makelist($res, $folder)	{
 	 * @param	string		$fN: Fieldname
 	 * @return	The		fieldlabel wrapped in link that contains sorting vars
 	 */
-	function getFieldHeader_sortLink($fN)	{
+	/*function getFieldHeader_sortLink($fN)	{
 		return $this->pi_linkTP_keepPIvars($this->getFieldHeader($fN),array('sort'=>$fN.':'.($this->internal['descFlag']?0:1)));
-	}
+	}*/
 
 	/**
 	 * Retrieves directory names from the filesystem
@@ -489,7 +399,7 @@ function makelist($res, $folder)	{
 		return $result;
 	}
 	
-	function getSpecialUsageItemDirs($mediaFolder, $selectedCategory, $mainFolder) {
+	function getSpecialUsageItemDirs($mediaFolder, $catId, $mainFolder) {
 		
 		$this->internal['currentTable'] = 'tx_jhedamextender_usage';
 		$this->internal['where'] = 'tx_jhedamextender_usage.deleted = 0 AND tx_jhedamextender_usage.hidden = 0 AND tx_jhedamextender_usage.pid = ' . $mediaFolder;
@@ -513,6 +423,102 @@ function makelist($res, $folder)	{
 		return $result;
 
 	}
+
+	function getNumberOfFilesPerDirectory($conf) {
+
+		foreach($this->conf['directories'] as $dir){
+			$files = t3lib_div::getFilesInDir(
+				$this->conf['mainFolder'].$dir,
+				'',
+				0,
+				1
+			);
+			
+			$array[$dir] = 0;
+			
+				foreach($files as $file){
+					$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+						'tx_dam_cat.uid as catId, tx_dam.*',
+						'tx_dam',
+						'tx_dam_mm_cat',
+						'tx_dam_cat',
+						' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam.file_name =\'' . $file . '\''
+					);
+					$resultMM = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+					if($resultMM['catId'] == $this->conf['selectedCategory']) {
+						$array[$dir] = $array[$dir]+1;					
+					}
+				}
+				
+				
+		}	
+
+		return $array;
+		
+	}
+	
+	function createNavPerDocumenttypes($conf){
+		$this->conf = $conf;
+				
+		$dirsFromFileSystem = $this->getFolderNamesFromFilesystem($this->conf['mainFolder']);
+		$specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf['mediaFolder'], $this->conf['selectedCategory'], $this->conf['mainFolder']); 
+		$this->conf['directories'] = array_diff($dirsFromFileSystem, $specialUsageItemDirs);
+		
+		$noOfFiles = $this->getNumberOfFilesPerDirectory($this->conf);
+		
+		foreach($this->conf['directories'] as $type){
+			if($noOfFiles[$type]) {			
+				$docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($type) . '">' . $type . '</li>';				
+			}
+		}
+				
+		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
+			<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+			<script type="text/javascript">
+
+				$(document).ready(function() {
+					// AJAX Request per eID
+					$(".tx-jhedamextender-pi4-navDokType").bind("click", function() {
+						$.ajax({
+					    	url: "?eID=getDocumentsByDirectoryAndCategory",
+					    	data: "&docType=" + this.id + "",
+					    	success: function(result) {
+					    		$("#docsByType").html("<span style=\"color: red; font-weight: bold;\">" + result + "</span>")
+							}
+						});
+					});
+
+				});
+
+			</script>
+		';
+				
+		return '<h3>Dokumentarten</h3><div><ul>'. $docType . '</ul></div>';
+		
+	}
+	
+	/*function makeLink($title, $conf) {
+		$this->conf = $conf;
+		
+		$params = array(
+			'specialUsage' => $this->conf['specialUsageId'],
+			'damcat' => $this->conf['selectedCategory'],
+			'no_cache' => 1
+		);
+		$pid = 1;
+		$target = '_self';
+
+		$result = $this->pi_linkToPage(
+			$title,
+			$pid,
+			$target,
+			$params
+		);
+		return $result;
+	}*/
+	
+	
+	
 }
 
 
