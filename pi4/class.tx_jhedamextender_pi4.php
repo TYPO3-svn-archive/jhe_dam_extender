@@ -73,9 +73,75 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 
 		$fullTable .= '<div id="docsByType">Platzhalter</div>';
 		
-		// Returns the content from the plugin.
-		#return $fullTable;
+				//CSS styling @todo: Put together in TS or a single css file
+		$GLOBALS['TSFE']->additionalCSS[] = '.list {
+				padding: 3px 5px;
+			}';
 		
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrow {
+				width: 100%;
+				height: auto;
+				clear: both;
+				padding: 3px 5px;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowTitle {
+				width: 250px;
+				margin-right: 5px;
+				float: left;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowSize {
+				width: 100px;
+				margin-right: 5px;
+				float: left;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowDate {
+				width: 100px;
+				margin-right: 5px;
+				float: left;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowImage {
+				width: 80px;
+				margin-right: 5px;
+				float: left;
+				text-align: center;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowImage img {
+				border: 1px solid gray;
+				margin: 0 0 5px 0;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowUsage {
+				width: 50px;
+				margin-right: 5px;
+				float: left;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowCat {
+				width: 80px;
+				margin-right: 5px;
+				float: left;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowType {
+				width: 50px;
+				margin-right: 5px;
+				float: left;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = 'hr {
+				margin: 0 0 5px 0;
+				clear: both;
+			}';
+
+		$GLOBALS['TSFE']->additionalCSS[] = '.listrowLink {
+				width: 100px;
+				float: left;
+			}';
 		
 		#return $this->pi_wrapInBaseClass($fullTable);
 		return $fullTable;
@@ -481,9 +547,9 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 					$(".tx-jhedamextender-pi4-navDokType").bind("click", function() {
 						$.ajax({
 					    	url: "?eID=getDocumentsByDirectoryAndCategory",
-					    	data: "&docType=" + this.id + "",
+					    	data: "&docType=" + this.id + "&catId=' . $this->conf['selectedCategory'] . '",
 					    	success: function(result) {
-					    		$("#docsByType").html("<span style=\"color: red; font-weight: bold;\">" + result + "</span>")
+					    		$("#docsByType").html("" + result + "")
 							}
 						});
 					});
