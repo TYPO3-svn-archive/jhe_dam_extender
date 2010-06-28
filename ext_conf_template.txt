@@ -3,3 +3,6 @@ mainFolder =
 
 # cat=basic; type=string; label= Types of files that can be rendered as preview pics via ImageMagick
 graphicFileTypes = gif,jpg,jpeg,tif,bmp,pcx,tga,png,pdf,ai
+
+# cat=basic; type=int; label= Width of preview pictures in list mode
+thumbImageWidth = 50

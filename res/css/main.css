@@ -1,0 +1,68 @@
+.list {
+	padding: 3px 5px;
+}
+
+.listrow {
+	width: 100%;
+	height: auto;
+	clear: both;
+	padding: 3px 5px;
+}
+
+.listrowTitle {
+	width: 250px;
+	margin-right: 5px;
+	float: left;
+}
+
+.listrowSize {
+	width: 100px;
+	margin-right: 5px;
+	float: left;
+}
+
+.listrowDate {
+	width: 100px;
+	margin-right: 5px;
+	float: left;
+}
+
+.listrowImage {
+	width: 80px;
+	margin-right: 5px;
+	float: left;
+	text-align: center;
+}
+
+.listrowImage img {
+	border: 1px solid gray;
+	margin: 0 0 5px 0;
+}
+
+.listrowUsage {
+	width: 50px;
+	margin-right: 5px;
+	float: left;
+}
+
+.listrowCat {
+	width: 80px;
+	margin-right: 5px;
+	float: left;
+}
+
+.listrowType {
+	width: 50px;
+	margin-right: 5px;
+	float: left;
+}
+
+hr {
+	margin: 0 0 5px 0;
+	clear: both;
+}
+
+.listrowLink {
+	width: 100px;
+	float: left;
+}

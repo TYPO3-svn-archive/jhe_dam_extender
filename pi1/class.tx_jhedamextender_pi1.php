@@ -26,19 +26,21 @@
  *
  *
  *
- *   56: class tx_jhedamextender_pi1 extends tslib_pibase
- *   69:     function main($content, $conf)
- *   99:     function listView($content, $conf)
- *  201:     function makelist($res, $folder)
- *  238:     function makeListItem()
- *  389:     function dlButtonView($content, $conf)
- *  453:     function getFieldContent($fN)
- *  470:     function getFieldHeader($fN)
- *  485:     function getFieldHeader_sortLink($fN)
- *  495:     public function getFolderNamesFromFilesystem($folder)
- *  521:     public function getCategoryHeader($catId, $mediaFolder)
+ *   58: class tx_jhedamextender_pi1 extends tslib_pibase
+ *   71:     function main($content, $conf)
+ *  109:     function listView($content, $conf)
+ *  211:     function makelist($res, $folder)
+ *  248:     function makeListItem()
+ *  399:     function dlButtonView($content, $conf)
+ *  463:     function getFieldContent($fN)
+ *  480:     function getFieldHeader($fN)
+ *  495:     function getFieldHeader_sortLink($fN)
+ *  505:     public function getFolderNamesFromFilesystem($folder)
+ *  531:     public function getCategoryHeader($catId, $mediaFolder)
+ *  555:     function countChilds($catId, $mediaFolder)
+ *  580:     function getNumberofFilesPerCategory($catId, $mediaFolder, $specialUsage, $folderSpecialUsage)
  *
- * TOTAL FUNCTIONS: 10
+ * TOTAL FUNCTIONS: 12
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
@@ -69,11 +71,12 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	function main($content, $conf)	{
 
 		$selectedCategory = t3lib_div::_GET('damcat');
-		
+		$specialUsage = t3lib_div::_GET('specialUsage');
+				
 		$this->pi_initPIFlexForm();
 		$viewMode = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
 		$mediaFolder = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
-		$specialUsage = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
+		#$specialUsage = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
 		$folderSpecialUsage = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'folderSpecialUsage');
 
 		switch($viewMode)	{
@@ -81,7 +84,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 				list($t) = explode(':',$this->cObj->currentRecord);
 				$this->internal['currentTable']=$t;
 				$this->internal['currentRow']=$this->cObj->data;
-				
+
 				if ($this->countChilds($selectedCategory, $mediaFolder) == 0 && $this->getNumberofFilesPerCategory($selectedCategory, $mediaFolder, $specialUsage, $folderSpecialUsage) != 0) {
 					return $this->pi_wrapInBaseClass($this->dlButtonView($content, $conf));
 				}
@@ -113,12 +116,13 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		$this->pi_initPIFlexForm();
 		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
 		#$this->conf['selectCategory'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'selectCategory');
-		$this->conf['specialUsage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
+		#$this->conf['specialUsage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
 		$this->conf['folderSpecialUsage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'folderSpecialUsage');
 		$this->conf['viewMode'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
 
 		$this->conf['selectCategory'] = t3lib_div::_GET('damcat');
-
+		$this->conf['specialUsage'] = t3lib_div::_GET('specialUsage');
+		
 		$lConf = $this->conf['listView.'];	// Local settings for the listView function
 
 		$fullTable = '';	// Clear var;
@@ -403,7 +407,8 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
 		#$this->conf['selectCategory'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'selectCategory');
 		$this->conf['selectCategory'] = t3lib_div::_GET('damcat');
-		$this->conf['specialUsage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
+		#$this->conf['specialUsage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialUsage');
+		$this->conf['specialUsage'] = t3lib_div::_GET('specialUsage');
 		$this->conf['folderSpecialUsage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'folderSpecialUsage');
 		$this->conf['viewMode'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
 
@@ -542,7 +547,14 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 
 		return $result;
 	}
-	
+
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$catId: ...
+	 * @param	[type]		$mediaFolder: ...
+	 * @return	[type]		...
+	 */
 	function countChilds($catId, $mediaFolder) {
 
 		$this->internal['currentTable'] = 'tx_dam_cat';
@@ -558,9 +570,18 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 
 		return $result;
 	}
-	
+
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$catId: ...
+	 * @param	[type]		$mediaFolder: ...
+	 * @param	[type]		$specialUsage: ...
+	 * @param	[type]		$folderSpecialUsage: ...
+	 * @return	[type]		...
+	 */
 	function getNumberofFilesPerCategory($catId, $mediaFolder, $specialUsage, $folderSpecialUsage) {
-		
+
 		list($this->internal['orderBy'],$this->internal['descFlag']) = explode(':',$this->piVars['sort']);
 		$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
 		$this->internal['maxPages']=t3lib_div::intInRange($lConf['maxPages'],0,1000,2);;		// The maximum number of "pages" in the browse-box: "Page 1", "Page 2", etc.
@@ -584,7 +605,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 			$this->internal['where']
 		);
 		list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-		
+
 		return $result;
 	}
 }

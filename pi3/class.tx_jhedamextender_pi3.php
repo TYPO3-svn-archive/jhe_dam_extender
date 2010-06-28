@@ -24,7 +24,16 @@
 /**
  * [CLASS/FUNCTION INDEX of SCRIPT]
  *
- * Hint: use extdeveval to insert/update function index above.
+ *
+ *
+ *   49: class tx_jhedamextender_pi3 extends tslib_pibase
+ *   62:     function main($content, $conf)
+ *   86:     function getSpecialUsageItems($mediaFolder, $selectedCategory)
+ *  113:     function makeLink($title, $specialUsageId, $selectedCategory)
+ *
+ * TOTAL FUNCTIONS: 3
+ * (This index is automatically created/updated by the extension "extdeveval")
+ *
  */
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
@@ -42,65 +51,91 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 	var $scriptRelPath = 'pi3/class.tx_jhedamextender_pi3.php';	// Path to this script relative to the extension dir.
 	var $extKey        = 'jhe_dam_extender';	// The extension key.
 	var $pi_checkCHash = true;
-	
+
 	/**
 	 * The main method of the PlugIn
 	 *
 	 * @param	string		$content: The PlugIn content
 	 * @param	array		$conf: The PlugIn configuration
-	 * @return	The content that is displayed on the website
+	 * @return	The		content that is displayed on the website
 	 */
 	function main($content, $conf) {
 		$this->conf = $conf;
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
-		
+
 		$this->pi_initPIFlexForm();
 		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
-	
+		$this->conf['targetPage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'targetPage');
+
 		$this->conf['selectCategory'] = t3lib_div::_GET('damcat');
-		
+
 		$content='
-				<div' . $this->pi_classParam('specialUsageList') . '>' . $this->getSpecialUsageItems($this->conf['mediaFolder'], $this->conf['selectCategory']) . '</div>
+				<div' . $this->pi_classParam('specialUsageList') . '>' . $this->getSpecialUsageItems($this->conf) . '</div>
 			';
-	
+
 		return $this->pi_wrapInBaseClass($content);
 	}
-	
-	function getSpecialUsageItems($mediaFolder, $selectedCategory) {
-		
-		$this->internal['currentTable'] = 'tx_jhedamextender_usage';
-		$this->internal['where'] = 'tx_jhedamextender_usage.deleted = 0 AND tx_jhedamextender_usage.hidden = 0 AND tx_jhedamextender_usage.pid = ' . $mediaFolder;
 
+	
+	function getSpecialUsageItems($conf) {
+		$this->conf = $conf;
+		
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'*',
-			$this->internal['currentTable'],
-			$this->internal['where']
+			'tx_jhedamextender_usage',
+			'tx_jhedamextender_usage.deleted = 0 AND tx_jhedamextender_usage.hidden = 0 AND tx_jhedamextender_usage.pid = ' . $this->conf['mediaFolder']
 		);
 
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
-			$result .= '<li>' . $this->makeLink($row['usage_ea619ffddc'], $row['uid'], $selectedCategory) . '</li>';
+			$this->conf['title'] = $row['usage_ea619ffddc'];
+			$this->conf['specialUsageId'] = $row['uid'];
+			
+			$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+		
+			$countSelect = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'COUNT(*)',
+				'tx_dam',
+				'tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsageId']
+			);
+			
+			#$result = t3lib_div::debug($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery);	
+			
+			$counter = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($countSelect);
+			
+
+			
+			foreach($counter as $count) {
+				intval($count);
+				if($count != 0) {
+					$result .= '<li>' . $this->makeLink($this->conf) . '</li>';
+				}
+			}
 		}
 
 		return '<ul>' .$result . '</ul>';
 
 	}
-	
-	function makeLink($title, $specialUsageId, $selectedCategory) {
+
+
+	function makeLink($conf) {
+		$this->conf = $conf;
+		
 		$params = array(
-			'specialUsage' => $specialUsageId,
-			'damcat' => $selectedCategory,
+			'specialUsage' => $this->conf['specialUsageId'],
+			'damcat' => $this->conf['selectCategory'],
 			'no_cache' => 1
 		);
-		$pid = 9;
+		$pid = $this->conf['targetPage'];
 		$target = '_self';
 
 		$result = $this->pi_linkToPage(
-			$title,
+			$this->conf['title'],
 			$pid,
 			$target,
 			$params
 		);
+
 		return $result;
 	}
 }

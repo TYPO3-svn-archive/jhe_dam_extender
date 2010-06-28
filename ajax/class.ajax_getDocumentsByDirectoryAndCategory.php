@@ -25,25 +25,25 @@ if (!defined ('PATH_typo3conf')) die ('Could not access this script directly!');
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once(PATH_tslib.'class.tslib_content.php');
-#require_once(PATH_tslib.'class.tslib_eidtools.php');
-#require_once(PATH_t3lib.'class.t3lib_div.php');
 
 class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
 	var $extKey        = 'jhe_dam_extender';
-	
+
 	/**
 	 * Main Methode
 	 *
 	 * @return	string
 	 */
 	public function main() {
+
+		//Generate TSFE object to use in ajax class
 		$this->cObj = t3lib_div::makeInstance('tslib_cObj');
 		tslib_eidtools::connectDB();
- 
+
 		$TSFEclassName = t3lib_div::makeInstanceClassName('tslib_fe');
         $id = isset($HTTP_GET_VARS['id']) ? $HTTP_GET_VARS['id'] : 0;
- 
+
         $GLOBALS['TSFE'] = new $TSFEclassName($TYPO3_CONF_VARS, $id, '0', 1, '', '', '', '');
         $GLOBALS['TSFE']->connectToMySQL();
         $GLOBALS['TSFE']->fe_user = tslib_eidtools::initFeUser();
@@ -55,13 +55,23 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
         $GLOBALS['TSFE']->getConfigArray();
         $GLOBALS['TSFE']->set_no_cache();
         $this->cObj = t3lib_div::makeInstance('tslib_cObj');
- 
+
+        //language support
+		$this->lang = $this->getLanguageSupport();
+
+        //GET-Params
         $type = t3lib_div::_GET('docType');
 		$catId = t3lib_div::_GET('catId');
-				
+
+		//get data fro mext_local_conf
+		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+		$mainFolder = $this->extconf['mainFolder'];
+
+		//Prepare where clause for select statement
 		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
 		$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $catId;
-			
+
+		//generate SQL request
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
 			'tx_dam_cat.title as catTitle, tx_dam.*',
 			'tx_dam',
@@ -69,45 +79,55 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 			'tx_dam_cat',
 			$where
 		);
-				
+
+		// Make list table rows for specific dosument types
 		$items=array();
-			// Make list table rows
 		while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-			$items[]=$this->makeListItem();
+
+			$itemFilePath = strtolower(substr($this->internal['currentRow']['file_path'], strlen($mainFolder), -1));
+
+			if($itemFilePath == $type){
+				$items[]=$this->makeListItem($this->extconf);
+			}
 		}
-				
-		$out .= '<h4>' . $type . '</h4>
+
+		//generate HTML output (with headers)
+		$output .= '<h4>' . $this->translate($type) . '</h4>
 			<div' . $this->pi_classParam('listrow') . '>' .
-				'<div' . $this->pi_classParam('listrowTitle') . '>Bezeichnung</div>' .
-				'<div' . $this->pi_classParam('listrowSize') . '>Gr&ouml;&szlig;e</div>' .
-				'<div' . $this->pi_classParam('listrowDate') . '>Datum</div>' .
-				'<div' . $this->pi_classParam('listrowImage') . '>Vorschau</div>' .
-				#'<div' . $this->pi_classParam('listrowUsage') . '>Verwendung</div>' .
-				'<div' . $this->pi_classParam('listrowCat') . '>Kategorie</div>' .
-				'<div' . $this->pi_classParam('listrowType') . '>Typ</div>' .
-				'<div' . $this->pi_classParam('listrowLink') . '>Download-Link</div>' .
+				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->translate('bezeichnung') . '</div>' .
+				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->translate('groesse') . '</div>' .
+				'<div' . $this->pi_classParam('listrowDate') . '>' . $this->translate('datum') . '</div>' .
+				'<div' . $this->pi_classParam('listrowImage') . '>' . $this->translate('vorschau') . '</div>' .
+				'<div' . $this->pi_classParam('listrowType') . '>' . $this->translate('typ') . '</div>' .
+				'<div' . $this->pi_classParam('listrowLink') . '>' . $this->translate('download') . '</div>' .
 			'</div>
 			<hr />
 			<div'.$this->pi_classParam('list').'>
 				'.implode(chr(10),$items).'
 			</div>';
-		
-		return $out;
+
+		return $output;
 	}
-	
-	
-	
+
 	/**
 	 * Implodes a single row from a database to a single line
 	 *
-	 * @return	Imploded		column values
+	 * @param	array			$extconf: extension configuration variables
+	 * @return	Imploded		$output: HTML per column
 	 */
-	function makeListItem()	{
+	function makeListItem($extconf)	{
 
-		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+		$this->extconf = $extconf;
+
+		//language support
+		$this->lang = $this->getLanguageSupport();
+
+		//generates an array with all possible file types from which thumbnails can be generated
 		$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
 
+		//generates preview thumbnails
 		if(in_array($this->getFieldContent('file_type'), $workingTypes)) {
+
 			$imgPath = $this->getFieldContent('file_path') . $this->getFieldContent('file_name');
 
 			$imgData = getimagesize($imgPath);
@@ -123,17 +143,17 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 				$scape = 'portrait';
 			}
 
-			$targetImgWidth = '50';
+			$thumbImgWidth = $this->extconf['thumbImageWidth'];
 
 			switch($scape) {
 				case 'square':
-					$imgWidthCalc = $targetImgWidth;
+					$imgWidthCalc = $thumbImgWidth;
 					break;
 				case 'landscape':
-					$imgWidthCalc = $targetImgWidth;
+					$imgWidthCalc = $thumbImgWidth;
 					break;
 				case 'portrait':
-					$imgWidthCalc = intval($targetImgWidth * ($imgWidth / $imgHeight));
+					$imgWidthCalc = intval($thumbImgWidth * ($imgWidth / $imgHeight));
 					break;
 			}
 
@@ -150,43 +170,42 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 				'file.' => array(
 					'width' => '50'
 				),
-				'altText' => 'Keine Vorschau m&ouml;glich!'
+				'altText' => '' . $this->translate('nothumbavailable') . ''
 			);
 		}
-
+		
+		//get icon for document type
 		$typeIcon = array(
 			'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/icons/' . $this->getFieldContent('file_type') . '.gif'
 		);
 
+		//get download icon
 		$downloadIcon = array(
 			'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/download.gif',
-			'altText' => 'Download starten...'
+			'altText' => '' . $this->translate('downloadlink') . ''
 		);
 
-		$folder = substr($this->getFieldContent('file_path'),26, -1);
-
-		$out .= '
+		//generates HTML output
+		$output .= '
 			<div' . $this->pi_classParam('listrow') . '>' .
 				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . '</div>' .
-				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->getFieldContent('file_size') . ' Byte</div>' .
+				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->getFieldContent('file_size') . ' ' . $this->translate('byte') . '</div>' .
 				'<div' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('crdate')) . '</div>' .
 				'<div' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</div>' .
-				#'<div' . $this->pi_classParam('listrowUsage') . '>' . $this->getFieldContent('tx_jhedamextender_usage') . '</div>' .
-				'<div' . $this->pi_classParam('listrowCat') . '>' . $this->getFieldContent('catTitle') . '</div>' .
 				'<div' . $this->pi_classParam('listrowType') . '>' . $this->cObj->IMAGE($typeIcon) . '</div>' .
-				'<div' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . ' Download</a></div>' .
+				'<div' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . ' ' . $this->translate('downloadlink') . '</a></div>' .
 			'</div>
 			<hr />
 			';
-	
-		return $out;
-	}	
-	
+
+		return $output;
+	}
+
 	/**
 	 * Returns the content of a given field
 	 *
 	 * @param	string		$fN: name of table field
-	 * @return	Value		of the field
+	 * @return	string		Value of the field
 	 */
 	function getFieldContent($fN)	{
 		switch($fN) {
@@ -199,6 +218,30 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 			break;
 		}
 	}
+
+	/**
+	 * Translates labels and output
+	 *
+	 * @param	string		$type: string to be translated
+	 * @return	string		translated string
+	 */
+	function translate($type){
+		return $this->lang->sL('LLL:EXT:jhe_dam_extender/pi4/locallang.xml:'. strtolower($type) .'', 1);
+	}
+
+	/**
+	 * provides language support for ajax functions
+	 *
+	 * @return	object		$LANG: Language object
+	 */
+	function getLanguageSupport() {
+		require_once(PATH_typo3.'sysext/lang/lang.php');
+		$LANG = t3lib_div::makeInstance('language');
+		$LANG->lang = 'de';
+		$LANG->charSet = 'utf-8';
+        return $LANG;
+	}
+
 }
 
 $output = t3lib_div::makeInstance('ajax_getDocumentsByDirectoryAndCategory');
