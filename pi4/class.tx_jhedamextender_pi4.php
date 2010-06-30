@@ -26,15 +26,13 @@
  *
  *
  *
- *   53: class tx_jhedamextender_pi4 extends tslib_pibase
- *   66:     function main($content, $conf)
- *  104:     public function getFolderNamesFromFilesystem($folder)
- *
- *              SECTION: [Describe function...]
- *  217:     function getSpecialUsageItemDirs($conf)
- *  247:     function getNumberOfFilesPerDirectory($conf)
- *  286:     function createNavPerDocumenttypes($conf)
- *  332:     function translateDirectoryType($type)
+ *   51: class tx_jhedamextender_pi4 extends tslib_pibase
+ *   64:     function main($content, $conf)
+ *  106:     public function getFolderNamesFromFilesystem($folder)
+ *  132:     function getSpecialUsageItemDirs($conf)
+ *  162:     function getNumberOfFilesPerDirectory($conf)
+ *  198:     function createNavPerDocumenttypes($conf)
+ *  262:     function translate($type)
  *
  * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -71,32 +69,32 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 		//get GET variables
 		$this->conf['selectedCategory'] = t3lib_div::_GET('damcat');
 
-		//get data from be flexform
-		$this->pi_initPIFlexForm();
-		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+		if(!$this->conf['selectedCategory']){
+			$content = $this->pi_getLL('err_no_cat');
+		} else {
+			//get data from be flexform
+			$this->pi_initPIFlexForm();
+			$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
 
-		//Initializing params from ext_conf_template
-		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-		$this->conf['mainFolder'] =$this->extconf['mainFolder'];
+			//Initializing params from ext_conf_template
+			$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+			$this->conf['mainFolder'] =$this->extconf['mainFolder'];
 
-		//integration of an main css file for styling the html output
-		$css = '<link rel="stylesheet" type="text/css" href="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/css/main.css" />';
-		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey . '_css'] = $css;
-		#var_dump($GLOBALS['TSFE']->additionalHeaderData[$this->extKey]);
+			//integration of an main css file for styling the html output
+			$css = '<link rel="stylesheet" type="text/css" href="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/css/main.css" />';
+			$GLOBALS['TSFE']->additionalHeaderData[$this->extKey . '_css'] = $css;
 
-		//get language support
-		$GLOBALS['TSFE']->readLLfile('EXT:jhe_dam_extender/pi4/locallang.xml');
-		
-		//clear html output
-		$output = '';
+			//clear html output
+			$content = '';
 
-		//creating menue from dam directories
-		$output .= $this->createNavPerDocumenttypes($this->conf);
+			//creating menue from dam directories
+			$content .= $this->createNavPerDocumenttypes($this->conf);
 
-		//creating output target for jquery result
-		$output .= '<div id="docsByType"></div>';
-
-		return $output;
+			//creating output target for ajaxloader and jquery result
+			$content .= '<div id="doctype_ajaxloader" class="hidden" style="text-align: center; margin: 5px;"><img src="http://192.168.78.130/dev/typo3conf/ext/jhe_dam_extender/res/img/ajaxloader.gif" /></div>';
+			$content .= '<div id="docsByType"></div>';
+		}
+		return $content;
 	}
 
 	/**
@@ -204,6 +202,15 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 		$specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf);
 		$this->conf['directories'] = array_diff($dirsFromFileSystem, $specialUsageItemDirs);
 
+		$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'title',
+			'tx_dam_cat',
+			'uid=' . $this->conf['selectedCategory']
+		);
+		list($catTitle) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+
 		$noOfFiles = $this->getNumberOfFilesPerDirectory($this->conf);
 
 		foreach($this->conf['directories'] as $type){
@@ -219,10 +226,14 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 				$(document).ready(function() {
 					// AJAX Request per eID
 					$(".tx-jhedamextender-pi4-navDokType").bind("click", function() {
+						$("#docsByType").hide();
+						$("#doctype_ajaxloader").show();
 						$.ajax({
 					    	url: "?eID=getDocumentsByDirectoryAndCategory",
 					    	data: "&docType=" + this.id + "&catId=' . $this->conf['selectedCategory'] . '",
 					    	success: function(result) {
+					    		$("#doctype_ajaxloader").hide();
+					    		$("#docsByType").show();
 					    		$("#docsByType").html("" + result + "")
 							}
 						});
@@ -233,7 +244,13 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 			</script>
 		';
 
-		return '<h3>' . $this->translate('headerdoctypes') . '</h3><div><ul>'. $docType . '</ul></div>';
+		if(!$docType) {
+			$content = $catTitle . ': ' . $this->translate('err_no_doctypes');
+		} else {
+			$content = '<h3>' . $this->translate('headerdoctypes') . ' ' . $catTitle . '</h3><div><ul>'. $docType . '</ul></div>';
+		}
+
+		return $content;
 	}
 
 	/**

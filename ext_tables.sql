@@ -2,7 +2,7 @@
 # Table structure for table 'tx_dam'
 #
 CREATE TABLE tx_dam (
-	tx_jhedamextender_usage int(11) DEFAULT '0' NOT NULL
+	tx_jhedamextender_usage varchar(255) DEFAULT '0' NOT NULL
 );
 
 

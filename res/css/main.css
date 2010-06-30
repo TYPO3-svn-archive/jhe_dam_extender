@@ -1,3 +1,11 @@
+.hidden {
+	display: none;
+}
+
+#doctype_ajaxloader {
+	
+}
+
 .list {
 	padding: 3px 5px;
 }
@@ -63,6 +71,95 @@ hr {
 }
 
 .listrowLink {
+	width: 100px;
+	float: left;
+}
+
+.tx-jhedamextender-pi4-navDokType {
+	cursor: pointer;
+}
+
+
+.tx-jhedamextender-pi1-dlButtonView {
+	padding: 3px 5px;
+	text-align: center;
+}
+
+.tx-jhedamextender-pi1-dlButtonView input {
+	height: 50px;
+	width: 180px;
+	border: 1px solid gray;
+	background-color: light-gray;
+	cursor: pointer;
+	-moz-border-radius:10px;
+	-khtml-border-radius:10px;
+}
+
+.tx-jhedamextender-pi1-list {
+	padding: 3px 5px;
+}
+
+clistrow {
+	width: 100%;
+	height: auto;
+	clear: both;
+	padding: 3px 5px;
+}
+
+.tx-jhedamextender-pi1-listrowTitle {
+	width: 250px;
+	margin-right: 5px;
+	float: left;
+}
+
+.tx-jhedamextender-pi1-listrowSize {
+	width: 100px;
+	margin-right: 5px;
+	float: left;
+}
+
+.tx-jhedamextender-pi1-listrowDate {
+	width: 100px;
+	margin-right: 5px;
+	float: left;
+}
+
+.tx-jhedamextender-pi1-listrowImage {
+	width: 80px;
+	margin-right: 5px;
+	float: left;
+	text-align: center;
+}
+
+.tx-jhedamextender-pi1-listrowImage img {
+	border: 1px solid gray;
+	margin: 0 0 5px 0;
+}
+
+.tx-jhedamextender-pi1-listrowUsage {
+	width: 50px;
+	margin-right: 5px;
+	float: left;
+}
+
+.tx-jhedamextender-pi1-listrowCat {
+	width: 80px;
+	margin-right: 5px;
+	float: left;
+}
+
+.tx-jhedamextender-pi1-listrowType {
+	width: 50px;
+	margin-right: 5px;
+	float: left;
+}
+
+ .tx-jhedamextender-pi1-list hr {
+	margin: 0 0 5px 0;
+	clear: both;
+}
+
+.tx-jhedamextender-pi1-listrowLink {
 	width: 100px;
 	float: left;
 }

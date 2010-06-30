@@ -30,6 +30,8 @@
 			<label index="downloadlink">Download</label>
 			<label index="byte">Byte</label>
 			<label index="headerdoctypes">Dokumentenarten</label>
+			<label index="err_no_cat">Bitte wählen Sie eine Kategorie aus...</label>
+			<label index="err_no_doctypes">In dieser Kategorie sind keine Dokumente vorhanden...</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="back">Zurück</label>
@@ -56,6 +58,8 @@
 			<label index="downloadlink">Download</label>
 			<label index="byte">Byte</label>
 			<label index="headerdoctypes">Dokumentenarten</label>
+			<label index="err_no_cat">Bitte wählen Sie eine Kategorie aus...</label>
+			<label index="err_no_doctypes">In dieser Kategorie sind keine Dokumente vorhanden...</label>
 		</languageKey>
 	</data>
 </T3locallang>

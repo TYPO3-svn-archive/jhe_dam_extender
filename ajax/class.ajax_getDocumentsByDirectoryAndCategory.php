@@ -112,7 +112,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 	/**
 	 * Implodes a single row from a database to a single line
 	 *
-	 * @param	array			$extconf: extension configuration variables
+	 * @param	array		$extconf: extension configuration variables
 	 * @return	Imploded		$output: HTML per column
 	 */
 	function makeListItem($extconf)	{
@@ -173,7 +173,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 				'altText' => '' . $this->translate('nothumbavailable') . ''
 			);
 		}
-		
+
 		//get icon for document type
 		$typeIcon = array(
 			'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/icons/' . $this->getFieldContent('file_type') . '.gif'

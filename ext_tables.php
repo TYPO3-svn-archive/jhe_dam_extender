@@ -3,19 +3,19 @@ if (!defined('TYPO3_MODE')) {
 	die ('Access denied.');
 }
 $tempColumns = array (
-	'tx_jhedamextender_usage' => array (		
-		'exclude' => 0,		
-		'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_usage',		
+	'tx_jhedamextender_usage' => array (
+		'exclude' => 0,
+		'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_usage',
 		'config' => array (
-			'type' => 'select',	
+			'type' => 'select',
 			'items' => array (
-				array('',0),
+				array('',''),
 			),
-			'foreign_table' => 'tx_jhedamextender_usage',	
-			'foreign_table_where' => 'AND tx_jhedamextender_usage.pid=###CURRENT_PID### ORDER BY tx_jhedamextender_usage.uid',	
-			'size' => 1,	
+			'foreign_table' => 'tx_jhedamextender_usage',
+			'foreign_table_where' => 'AND tx_jhedamextender_usage.pid=###CURRENT_PID### ORDER BY tx_jhedamextender_usage.uid',
+			'size' => 10,
 			'minitems' => 0,
-			'maxitems' => 1,	
+			'maxitems' => 10,
 			'wizards' => array(
 				'_PADDING'  => 2,
 				'_VERTICAL' => 1,
@@ -52,17 +52,17 @@ t3lib_extMgm::addToAllTCAtypes('tx_dam','tx_jhedamextender_usage;;;;1-1-1');
 
 $TCA['tx_jhedamextender_usage'] = array (
 	'ctrl' => array (
-		'title'     => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_jhedamextender_usage',		
-		'label'     => 'usage_ea619ffddc',	
+		'title'     => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_jhedamextender_usage',
+		'label'     => 'usage_ea619ffddc',
 		'tstamp'    => 'tstamp',
 		'crdate'    => 'crdate',
 		'cruser_id' => 'cruser_id',
-		'languageField'            => 'sys_language_uid',	
-		'transOrigPointerField'    => 'l10n_parent',	
-		'transOrigDiffSourceField' => 'l10n_diffsource',	
-		'default_sortby' => 'ORDER BY crdate',	
-		'delete' => 'deleted',	
-		'enablecolumns' => array (		
+		'languageField'            => 'sys_language_uid',
+		'transOrigPointerField'    => 'l10n_parent',
+		'transOrigDiffSourceField' => 'l10n_diffsource',
+		'default_sortby' => 'ORDER BY crdate',
+		'delete' => 'deleted',
+		'enablecolumns' => array (
 			'disabled' => 'hidden',
 		),
 		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY).'tca.php',

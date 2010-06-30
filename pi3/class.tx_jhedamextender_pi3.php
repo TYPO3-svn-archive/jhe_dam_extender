@@ -28,8 +28,8 @@
  *
  *   49: class tx_jhedamextender_pi3 extends tslib_pibase
  *   62:     function main($content, $conf)
- *   86:     function getSpecialUsageItems($mediaFolder, $selectedCategory)
- *  113:     function makeLink($title, $specialUsageId, $selectedCategory)
+ *   90:     function getSpecialUsageItems($conf)
+ *  135:     function makeLink($conf)
  *
  * TOTAL FUNCTIONS: 3
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -64,23 +64,32 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 
-		$this->pi_initPIFlexForm();
-		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
-		$this->conf['targetPage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'targetPage');
-
 		$this->conf['selectCategory'] = t3lib_div::_GET('damcat');
 
-		$content='
+		if(!$this->conf['selectCategory']) {
+			$content = '';
+		} else {
+			$this->pi_initPIFlexForm();
+			$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+			$this->conf['targetPage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'targetPage');
+
+			$content='
 				<div' . $this->pi_classParam('specialUsageList') . '>' . $this->getSpecialUsageItems($this->conf) . '</div>
 			';
+		}
 
 		return $this->pi_wrapInBaseClass($content);
 	}
 
-	
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$conf: ...
+	 * @return	[type]		...
+	 */
 	function getSpecialUsageItems($conf) {
 		$this->conf = $conf;
-		
+
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'*',
 			'tx_jhedamextender_usage',
@@ -90,37 +99,42 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
 			$this->conf['title'] = $row['usage_ea619ffddc'];
 			$this->conf['specialUsageId'] = $row['uid'];
-			
-			$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
-		
-			$countSelect = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-				'COUNT(*)',
-				'tx_dam',
-				'tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsageId']
-			);
-			
-			#$result = t3lib_div::debug($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery);	
-			
-			$counter = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($countSelect);
-			
 
-			
-			foreach($counter as $count) {
-				intval($count);
-				if($count != 0) {
-					$result .= '<li>' . $this->makeLink($this->conf) . '</li>';
-				}
+			$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+			$res_mm = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+				'COUNT(\'tx_dam.*\')',
+				'tx_dam',
+				'tx_dam_mm_cat',
+				'tx_dam_cat',
+				' AND tx_dam.tx_jhedamextender_usage = ' . $row['uid'] . ' AND tx_dam_cat.uid = ' . $this->conf['selectCategory']
+			);
+
+			$counter = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_mm));
+
+			if($counter['0']) {
+				$result .= '<li>' . $this->makeLink($this->conf) . '</li>';
 			}
 		}
 
-		return '<ul>' .$result . '</ul>';
+		if(!$result){
+			$content = '';
+		} else {
+			$content = '<ul>' .$result . '</ul>';
+		}
+
+		return $content;
 
 	}
 
-
+	/**
+	 * [Describe function...]
+	 *
+	 * @param	[type]		$conf: ...
+	 * @return	[type]		...
+	 */
 	function makeLink($conf) {
 		$this->conf = $conf;
-		
+
 		$params = array(
 			'specialUsage' => $this->conf['specialUsageId'],
 			'damcat' => $this->conf['selectCategory'],
