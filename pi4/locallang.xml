@@ -12,6 +12,8 @@
 			<label index="flyer">Flyer</label>
 			<label index="formblaetter">Forms</label>
 			<label index="links">Links</label>
+			<label index="plakate">Plakate</label>
+			<label index="produktbeschreibung">Produktbeschreibung</label>
 			<label index="praesentationen">Presentations</label>
 			<label index="produktblaetter">Product information sheets</label>
 			<label index="produktmappe">Product portfolio</label>
@@ -40,6 +42,8 @@
 			<label index="flyer">Flyer</label>
 			<label index="formblaetter">Formblätter</label>
 			<label index="links">Links</label>
+			<label index="plakate">Plakate</label>
+			<label index="produktbeschreibung">Produktbeschreibung</label>
 			<label index="praesentationen">Präsentationen</label>
 			<label index="produktblaetter">Produktblätter</label>
 			<label index="produktmappe">Product portfolio</label>

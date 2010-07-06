@@ -86,19 +86,23 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 	function getCatMenue($mediaFolder){
 
 		$this->internal['groupBy'] = '';
-		$this->internal['orderBy'] = '';
-		$this->internal['orderByList']='title';
+		$this->internal['orderBy'] = 'tx_dam_cat.title';
+		$this->internal['orderByList']='';
 		$this->internal['currentTable'] = 'tx_dam_cat';
 		$this->internal['limit'] = '';
 
 		$this->internal['where'] = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $mediaFolder . ' AND tx_dam_cat.parent_id = 5';
 
+#		$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'tx_dam_cat.*',
 			$this->internal['currentTable'],
-			$this->internal['where']
+			$this->internal['where'],
+			'',
+			$this->internal['orderBy']
 		);
-
+#echo t3lib_div::debug($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery);
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
 			#$result .= '<li>' . $row['title'] . ' (' . $row['uid'] . ' / ' . $this->countChilds($row['uid'], $mediaFolder) . ')</li>';
 
@@ -122,8 +126,8 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 	 */
 	function countChilds($catId, $mediaFolder) {
 		$this->internal['groupBy'] = '';
-		$this->internal['orderBy'] = '';
-		$this->internal['orderByList']='title';
+		$this->internal['orderBy'] = 'tx_dam_cat.title';
+		$this->internal['orderByList']='';
 		$this->internal['currentTable'] = 'tx_dam_cat';
 		$this->internal['limit'] = '';
 
@@ -132,7 +136,9 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'COUNT(tx_dam_cat.title)',
 			$this->internal['currentTable'],
-			$this->internal['where']
+			$this->internal['where'],
+			'',
+			$this->internal['orderBy']
 		);
 
 		list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
@@ -150,8 +156,8 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 	function getChilds($catId, $mediaFolder) {
 
 		$this->internal['groupBy'] = '';
-		$this->internal['orderBy'] = '';
-		$this->internal['orderByList']='title';
+		$this->internal['orderBy'] = 'tx_dam_cat.title';
+		$this->internal['orderByList']='';
 		$this->internal['currentTable'] = 'tx_dam_cat';
 		$this->internal['limit'] = '';
 
@@ -160,7 +166,9 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'tx_dam_cat.*',
 			$this->internal['currentTable'],
-			$this->internal['where']
+			$this->internal['where'],
+			'',
+			$this->internal['orderBy']
 		);
 
 		#$result = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
