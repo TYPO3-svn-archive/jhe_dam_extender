@@ -28,10 +28,10 @@
  *
  *   51: class tx_jhedamextender_pi2 extends tslib_pibase
  *   64:     function main($content, $conf)
- *   86:     function getCatMenue($mediaFolder)
- *  123:     function countChilds($catId, $mediaFolder)
- *  150:     function getChilds($catId, $mediaFolder)
- *  188:     function makeLink($title, $catId)
+ *   89:     function getCatMenue($conf)
+ *  129:     function countChilds($conf)
+ *  157:     function getChilds($conf)
+ *  196:     function makeLink($conf)
  *
  * TOTAL FUNCTIONS: 5
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -63,14 +63,17 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 	 */
 	function main($content, $conf) {
 		$this->conf = $conf;
+
 		$this->pi_setPiVarDefaults();
 		$this->pi_loadLL();
 
 		$this->pi_initPIFlexForm();
 		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+		$this->conf['parentCat'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'parentCat');
+		$this->conf['backPage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'backPage');
 
 		$content='
-			<div' . $this->pi_classParam('catMenue') . '>' . $this->getCatMenue($this->conf['mediaFolder']) . '</div>
+			<div' . $this->pi_classParam('catMenue') . '>' . $this->getCatMenue($this->conf) . '</div>
 			';
 
 		return $this->pi_wrapInBaseClass($content);
@@ -78,67 +81,66 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Generates a menu structure depending on the category tree
 	 *
-	 * @param	[type]		$mediaFolder: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$result: ul content
 	 */
-	function getCatMenue($mediaFolder){
+	function getCatMenue($conf){
 
-		$this->internal['groupBy'] = '';
-		$this->internal['orderBy'] = 'tx_dam_cat.title';
-		$this->internal['orderByList']='';
-		$this->internal['currentTable'] = 'tx_dam_cat';
-		$this->internal['limit'] = '';
+		$this->conf = $conf;
 
-		$this->internal['where'] = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $mediaFolder . ' AND tx_dam_cat.parent_id = 5';
-
-#		$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+		$orderBy = 'tx_dam_cat.title';
+		$currentTable = 'tx_dam_cat';
+		$where = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $this->conf['mediaFolder'] . ' AND tx_dam_cat.parent_id = ' . $this->conf['parentCat'];
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'tx_dam_cat.*',
-			$this->internal['currentTable'],
-			$this->internal['where'],
+			$currentTable,
+			$where,
 			'',
-			$this->internal['orderBy']
+			$orderBy
 		);
-#echo t3lib_div::debug($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery);
+
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
-			#$result .= '<li>' . $row['title'] . ' (' . $row['uid'] . ' / ' . $this->countChilds($row['uid'], $mediaFolder) . ')</li>';
 
-			$result .= '<li>' . $this->makeLink($row['title'], $row['uid']) . '</li>';
+			$this->conf['catId'] = $row['uid'];
+			$this->conf['catTitle'] = $row['title'];
 
-			if($this->countChilds($row['uid'], $mediaFolder) > 0) {
-				$result .= $this->getChilds($row['uid'], $mediaFolder);
+			$result .= '<li>' . $this->makeLink($this->conf) . '</li>';
+
+			if($this->countChilds($this->conf) > 0) {
+				$result .= $this->getChilds($this->conf);
 			}
 		}
 
-		return '<ul>' .$result . '</ul>';
+		$result = '<ul>' .$result . '</ul>';
+
+		return $result;
 
 	}
 
 	/**
-	 * [Describe function...]
+	 * Counts category childs
 	 *
-	 * @param	[type]		$catId: ...
-	 * @param	[type]		$mediaFolder: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$result: number of child categories
 	 */
-	function countChilds($catId, $mediaFolder) {
-		$this->internal['groupBy'] = '';
-		$this->internal['orderBy'] = 'tx_dam_cat.title';
-		$this->internal['orderByList']='';
-		$this->internal['currentTable'] = 'tx_dam_cat';
-		$this->internal['limit'] = '';
+	function countChilds($conf) {
 
-		$this->internal['where'] = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $mediaFolder . ' AND tx_dam_cat.parent_id = ' . $catId . '';
+		$this->conf = $conf;
+
+		$orderBy = 'tx_dam_cat.title';
+		$currentTable = 'tx_dam_cat';
+
+		$where = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $this->conf['mediaFolder'] . ' AND tx_dam_cat.parent_id = ' . $this->conf['catId'] . '';
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'COUNT(tx_dam_cat.title)',
-			$this->internal['currentTable'],
-			$this->internal['where'],
+			$currentTable,
+			$where,
 			'',
-			$this->internal['orderBy']
+			$orderBy
 		);
 
 		list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
@@ -147,71 +149,72 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * gets all child categories for a given parent category
 	 *
-	 * @param	[type]		$catId: ...
-	 * @param	[type]		$mediaFolder: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$result: ul content
 	 */
-	function getChilds($catId, $mediaFolder) {
+	function getChilds($conf) {
 
-		$this->internal['groupBy'] = '';
-		$this->internal['orderBy'] = 'tx_dam_cat.title';
-		$this->internal['orderByList']='';
-		$this->internal['currentTable'] = 'tx_dam_cat';
-		$this->internal['limit'] = '';
+		$this->conf = $conf;
 
-		$this->internal['where'] = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $mediaFolder . ' AND tx_dam_cat.parent_id = ' . $catId . '';
+		$orderBy = 'tx_dam_cat.title';
+		$currentTable = 'tx_dam_cat';
+		$where = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $this->conf['mediaFolder'] . ' AND tx_dam_cat.parent_id = ' . $this->conf['catId'] . '';
 
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'tx_dam_cat.*',
-			$this->internal['currentTable'],
-			$this->internal['where'],
+			$currentTable,
+			$where,
 			'',
-			$this->internal['orderBy']
+			$orderBy
 		);
 
-		#$result = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-
 		while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
-			#$result .= '<li>' . $row['title'] . ' (' . $row['uid'] . ' / ' . $this->countChilds($row['uid'], $mediaFolder) . ')</li>';
 
-			$result .= '<li>' . $this->makeLink($row['title'], $row['uid']) . '</li>';
+			$this->conf['catId'] = $row['uid'];
+			$this->conf['catTitle'] = $row['title'];
 
-			if($this->countChilds($row['uid'], $mediaFolder) > 0) {
-				$result .= $this->getChilds($row['uid'], $mediaFolder);
+			$result .= '<li>' . $this->makeLink($this->conf) . '</li>';
+
+			if($this->countChilds($this->conf) > 0) {
+				$result .= $this->getChilds($this->conf);
 			}
 		}
 
-		return '<ul>'.$result.'</ul>';
+		$result = '<ul>'.$result.'</ul>';
+
+		return $result;
 	}
 
 	/**
-	 * [Describe function...]
+	 * Generates the links
 	 *
-	 * @param	[type]		$title: ...
-	 * @param	[type]		$catId: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$result: Link to page and category data
 	 */
-	function makeLink($title, $catId) {
+	function makeLink($conf) {
+
+		$this->conf = $conf;
+
 		$params = array(
-			'damcat' => $catId,
+			'damcat' => $this->conf['catId'],
 			'no_cache' => 1
 		);
-		$pid = 1;
+
+		$pid = $this->conf['backPage'];
 		$target = '_self';
 
 		$result = $this->pi_linkToPage(
-			$title,
+			$this->conf['catTitle'],
 			$pid,
 			$target,
 			$params
 		);
+
 		return $result;
 	}
 }
-
-
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi2/class.tx_jhedamextender_pi2.php'])	{
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi2/class.tx_jhedamextender_pi2.php']);
