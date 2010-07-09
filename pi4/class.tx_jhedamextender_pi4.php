@@ -31,8 +31,8 @@
  *  106:     public function getFolderNamesFromFilesystem($folder)
  *  132:     function getSpecialUsageItemDirs($conf)
  *  162:     function getNumberOfFilesPerDirectory($conf)
- *  198:     function createNavPerDocumenttypes($conf)
- *  262:     function translate($type)
+ *  202:     function createNavPerDocumenttypes($conf)
+ *  266:     function translate($type)
  *
  * TOTAL FUNCTIONS: 6
  * (This index is automatically created/updated by the extension "extdeveval")
@@ -106,7 +106,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 	public function getFolderNamesFromFilesystem($folder){
 
 		$arrFolders = t3lib_div::get_dirs($folder);
-		
+
 		foreach ($arrFolders as $value) {
 			if(t3lib_div::get_dirs($folder.$value . '/') != NULL){
 				$newFolders = t3lib_div::get_dirs($folder.$value . '/');
@@ -126,7 +126,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 	/**
 	 * Retrieves all directories with documents for special usage only
 	 *
-	 * @param	object		$conf: configuration data
+	 * @param	array		$conf: configuration data
 	 * @return	array		$result: array of all directories with documents for special usage only
 	 */
 	function getSpecialUsageItemDirs($conf) {
@@ -156,7 +156,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 	/**
 	 * Counts all files in a given directory
 	 *
-	 * @param	object		$conf: configuration data
+	 * @param	array		$conf: configuration data
 	 * @return	array		$array: with counting results per document type ad directory
 	 */
 	function getNumberOfFilesPerDirectory($conf) {
