@@ -34,6 +34,7 @@
 			<label index="headerdoctypes">Dokumentenarten</label>
 			<label index="err_no_cat">Bitte wählen Sie eine Kategorie aus...</label>
 			<label index="err_no_doctypes">In dieser Kategorie sind keine Dokumente vorhanden...</label>
+			<label index="isnew">Neues Dokument</label>
 		</languageKey>
 		<languageKey index="de" type="array">
 			<label index="back">Zurück</label>
@@ -64,6 +65,7 @@
 			<label index="headerdoctypes">Dokumentenarten</label>
 			<label index="err_no_cat">Bitte wählen Sie eine Kategorie aus...</label>
 			<label index="err_no_doctypes">In dieser Kategorie sind keine Dokumente vorhanden...</label>
+			<label index="isnew">Neues Dokument</label>
 		</languageKey>
 	</data>
 </T3locallang>

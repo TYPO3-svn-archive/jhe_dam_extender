@@ -63,7 +63,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
         $type = t3lib_div::_GET('docType');
 		$catId = t3lib_div::_GET('catId');
 
-		//get data fro mext_local_conf
+		//get data from ext_local_conf
 		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 		$mainFolder = $this->extconf['mainFolder'];
 
@@ -185,10 +185,22 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 			'altText' => '' . $this->translate('downloadlink') . ''
 		);
 
+		//get creation date
+		if($this->getFieldContent('date_cr')+$this->daysToSeconds($this->extconf['newPeriod']) > time()) {
+			//get new icon
+			$newIcon = array(
+				'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/new.gif',
+				'altText' => '' . $this->translate('isnew') . ''
+			);
+		} else {
+			$newIcon = '';
+		}
+		
+		
 		//generates HTML output
 		$output .= '
 			<div' . $this->pi_classParam('listrow') . '>' .
-				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . '</div>' .
+				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</div>' .
 				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->getFieldContent('file_size') . ' ' . $this->translate('byte') . '</div>' .
 				'<div' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('crdate')) . '</div>' .
 				'<div' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</div>' .
@@ -240,6 +252,10 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		$LANG->lang = 'de';
 		$LANG->charSet = 'utf-8';
         return $LANG;
+	}
+	
+	function daysToSeconds($days) {
+		return 60*60*24*$days;
 	}
 
 }

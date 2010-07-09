@@ -24,6 +24,7 @@
 			<label index="produktblaetter">Produktblätter</label>
 			<label index="produktmappe">Product portfolio</label>
 			<label index="produktbeschreibung">Produktbeschreibung</label>
+			<label index="plakate">Plakate</label>
 			<label index="arbeitshilfen">Arbeitshilfen</label>
 			<label index="kunde">Kunde</label>
 			<label index="vertrieb">Vertrieb</label>
@@ -60,6 +61,7 @@
 			<label index="produktblaetter">Produktblätter</label>
 			<label index="produktmappe">Produktmappe</label>
 			<label index="produktbeschreibung">Produktbeschreibung</label>
+			<label index="plakate">Plakate</label>
 			<label index="arbeitshilfen">Arbeitshilfen</label>
 			<label index="kunde">Kunde</label>
 			<label index="vertrieb">Vertrieb</label>

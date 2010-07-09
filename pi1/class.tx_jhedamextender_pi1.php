@@ -301,11 +301,23 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 			'altText' => $this->translate('startdownload')
 		);
 
+		
+		//get creation date
+		if($this->getFieldContent('date_cr')+$this->daysToSeconds($this->extconf['newPeriod']) > time()) {
+			//get new icon
+			$newIcon = array(
+				'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/new.gif',
+				'altText' => '' . $this->translate('isnew') . ''
+			);
+		} else {
+			$newIcon = '';
+		}
+		
 		$folder = substr($this->getFieldContent('file_path'),26, -1);
 
 		$content .= '
 			<div' . $this->pi_classParam('listrow') . '>' .
-				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . '</div>' .
+				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</div>' .
 				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->getFieldContent('file_size') . ' Byte</div>' .
 				'<div' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('crdate')) . '</div>' .
 				'<div' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</div>' .
@@ -499,6 +511,10 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	 */
 	function translate($type){
 		return $this->pi_getLL('' . strtolower($type) . '');
+	}
+	
+	function daysToSeconds($days) {
+		return 60*60*24*$days;
 	}
 }
 

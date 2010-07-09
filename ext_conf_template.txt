@@ -6,3 +6,6 @@ graphicFileTypes = gif,jpg,jpeg,tif,bmp,pcx,tga,png,pdf,ai
 
 # cat=basic; type=int; label= Width of preview pictures in list mode
 thumbImageWidth = 50
+
+# cat=basic; type=int; label= Period of day in which data is marked as new
+newPeriod = 14
