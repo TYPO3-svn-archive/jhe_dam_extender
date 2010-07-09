@@ -82,10 +82,10 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Selects all items from a given category that belong to the special usage
 	 *
-	 * @param	[type]		$conf: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$content: ul content
 	 */
 	function getSpecialUsageItems($conf) {
 		$this->conf = $conf;
@@ -127,10 +127,10 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Generates the links
 	 *
-	 * @param	[type]		$conf: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$result: Link to page and category data
 	 */
 	function makeLink($conf) {
 		$this->conf = $conf;
