@@ -28,7 +28,7 @@ require_once(PATH_tslib.'class.tslib_content.php');
 
 class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
-	var $extKey        = 'jhe_dam_extender';
+	var $extKey = 'jhe_dam_extender';
 
 	/**
 	 * Main Methode
@@ -166,7 +166,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 			);
 		} else {
 			$preview = array(
-				'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/dummy250x250.gif',
+				'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
 				'file.' => array(
 					'width' => '50'
 				),
@@ -176,12 +176,12 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
 		//get icon for document type
 		$typeIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/icons/' . $this->getFieldContent('file_type') . '.gif'
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/icons/' . $this->getFieldContent('file_type') . '.gif'
 		);
 
 		//get download icon
 		$downloadIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/download.gif',
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
 			'altText' => '' . $this->translate('downloadlink') . ''
 		);
 
@@ -189,14 +189,14 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		if($this->getFieldContent('date_cr')+$this->daysToSeconds($this->extconf['newPeriod']) > time()) {
 			//get new icon
 			$newIcon = array(
-				'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/new.gif',
+				'file' => 'typo3conf/ext/jhe_dam_extender/res/img/new.gif',
 				'altText' => '' . $this->translate('isnew') . ''
 			);
 		} else {
 			$newIcon = '';
 		}
-		
-		
+
+
 		//generates HTML output
 		$output .= '
 			<div' . $this->pi_classParam('listrow') . '>' .
@@ -238,7 +238,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 	 * @return	string		translated string
 	 */
 	function translate($type){
-		return $this->lang->sL('LLL:EXT:jhe_dam_extender/pi4/locallang.xml:'. strtolower($type) .'', 1);
+		return $this->lang->sL('LLL:EXT:jhe_dam_extender/ajax/locallang.xml:'. strtolower($type) .'', 1);
 	}
 
 	/**
@@ -253,7 +253,13 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		$LANG->charSet = 'utf-8';
         return $LANG;
 	}
-	
+
+	/**
+	 * Calculates seconds form given number of day
+	 *
+	 * @param	int		$days: Number of days given from localconf.php for the period of time a record is marked as new
+	 * @return	int		number of seconds for calculating with timestamps
+	 */
 	function daysToSeconds($days) {
 		return 60*60*24*$days;
 	}

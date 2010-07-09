@@ -142,10 +142,10 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Replaces german umlauts in filenames
 	 *
-	 * @param	[type]		$string: ...
-	 * @return	[type]		...
+	 * @param	sting		$string: filename string from somewhere
+	 * @return	string		$string: new better readable filename
 	 */
 	public function replaceUmlauts($string) {
 		$input = array("ä", "ö", "ü", "Ä", "Ö", "Ü", "ß");
