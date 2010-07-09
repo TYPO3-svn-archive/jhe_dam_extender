@@ -26,20 +26,21 @@
  *
  *
  *
- *   57: class tx_jhedamextender_pi1 extends tslib_pibase
- *   70:     public function main($content, $conf)
- *  124:     function listView($conf)
- *  204:     function makelist($res, $folder)
- *  243:     function makeListItem()
- *  327:     function dlButtonView($conf)
- *  379:     function getFieldContent($fN)
- *  397:     public function getFolderNamesFromFilesystem($conf)
- *  426:     public function getCategoryHeader($conf)
- *  448:     function countChilds($conf)
- *  473:     function getNumberofFilesPerCategory($conf)
- *  500:     function translate($type)
+ *   58: class tx_jhedamextender_pi1 extends tslib_pibase
+ *   71:     public function main($content, $conf)
+ *  125:     function listView($conf)
+ *  205:     function makelist($res, $folder)
+ *  244:     function makeListItem()
+ *  340:     function dlButtonView($conf)
+ *  392:     function getFieldContent($fN)
+ *  410:     public function getFolderNamesFromFilesystem($conf)
+ *  438:     public function getCategoryHeader($conf)
+ *  459:     function countChilds($conf)
+ *  481:     function getNumberofFilesPerCategory($conf)
+ *  508:     function translate($type)
+ *  518:     function daysToSeconds($days)
  *
- * TOTAL FUNCTIONS: 11
+ * TOTAL FUNCTIONS: 12
  * (This index is automatically created/updated by the extension "extdeveval")
  *
  */
@@ -284,7 +285,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 			);
 		} else {
 			$preview = array(
-				'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/dummy250x250.gif',
+				'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
 				'file.' => array(
 					'width' => '50'
 				),
@@ -293,26 +294,26 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		}
 
 		$typeIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/icons/' . $this->getFieldContent('file_type') . '.gif'
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/icons/' . $this->getFieldContent('file_type') . '.gif'
 		);
 
 		$downloadIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/download.gif',
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
 			'altText' => $this->translate('startdownload')
 		);
 
-		
+
 		//get creation date
 		if($this->getFieldContent('date_cr')+$this->daysToSeconds($this->extconf['newPeriod']) > time()) {
 			//get new icon
 			$newIcon = array(
-				'file' => 'typo3conf/ext/jhe_dam_extender/pi1/gfx/new.gif',
+				'file' => 'typo3conf/ext/jhe_dam_extender/res/img/new.gif',
 				'altText' => '' . $this->translate('isnew') . ''
 			);
 		} else {
 			$newIcon = '';
 		}
-		
+
 		$folder = substr($this->getFieldContent('file_path'),26, -1);
 
 		$content .= '
@@ -429,11 +430,10 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Selects the category name to be displayed
 	 *
-	 * @param	[type]		$catId: ...
-	 * @param	[type]		$mediaFolder: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	string		$result: Name of the category
 	 */
 	public function getCategoryHeader($conf) {
 		$this->conf = $conf;
@@ -451,11 +451,10 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Counts childs of a given category
 	 *
-	 * @param	[type]		$catId: ...
-	 * @param	[type]		$mediaFolder: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	string		$result: number of child categories
 	 */
 	function countChilds($conf) {
 		$this->conf = $conf;
@@ -474,13 +473,10 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	}
 
 	/**
-	 * [Describe function...]
+	 * Counts the number of files for a given category independent form the folder structure
 	 *
-	 * @param	[type]		$catId: ...
-	 * @param	[type]		$mediaFolder: ...
-	 * @param	[type]		$specialUsage: ...
-	 * @param	[type]		$folderSpecialUsage: ...
-	 * @return	[type]		...
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	string		$result: Number of files
 	 */
 	function getNumberofFilesPerCategory($conf) {
 		$this->conf = $conf;
@@ -512,7 +508,13 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	function translate($type){
 		return $this->pi_getLL('' . strtolower($type) . '');
 	}
-	
+
+	/**
+	 * Calculates seconds form given number of day
+	 *
+	 * @param	int		$days: Number of days given from localconf.php for the period of time a record is marked as new
+	 * @return	int		number of seconds for calculating with timestamps
+	 */
 	function daysToSeconds($days) {
 		return 60*60*24*$days;
 	}
