@@ -197,20 +197,29 @@ class tx_jhedamextender_pi2 extends tslib_pibase {
 
 		$this->conf = $conf;
 
-		$params = array(
+                $noOfChilds = $this->countChilds($conf);
+#var_dump($noOfChilds);
+
+                if($noOfChilds == 0) {
+                    $params = array(
 			'damcat' => $this->conf['catId'],
 			'no_cache' => 1
-		);
+                    );
 
-		$pid = $this->conf['backPage'];
-		$target = '_self';
+                    $pid = $this->conf['backPage'];
+                    $target = '_self';
 
-		$result = $this->pi_linkToPage(
+                    $result = $this->pi_linkToPage(
 			$this->conf['catTitle'],
 			$pid,
 			$target,
 			$params
-		);
+                    );
+                } else {
+                    $result = '<span class="notlinked">' . $this->conf['catTitle'] . '</span>';
+                }
+
+		
 
 		return $result;
 	}

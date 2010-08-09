@@ -153,45 +153,59 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 		return $result;
 	}
 
-	/**
-	 * Counts all files in a given directory
+        /**
+	 * Counts all files in a given directory for a given category
 	 *
-	 * @param	array		$conf: configuration data
-	 * @return	array		$array: with counting results per document type ad directory
+	 * @param	string		$dir: name of directory
+	 * @return	string		$cat: id of category
 	 */
-	function getNumberOfFilesPerDirectory($conf) {
+        function getNumberOfFilesPerDirectoryAndCategory($dir, $cat) {
 
-		foreach($this->conf['directories'] as $dir){
-			$files = t3lib_div::getFilesInDir(
-				$this->conf['mainFolder'].$dir,
-				'',
-				0,
-				1
-			);
-#var_dump($files);
-			$array[$dir] = 0;
-#var_dump($array);
-$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+            $noOfFiles = 0;
 
-			foreach($files as $file){
-				$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-					'tx_dam_cat.uid as catId, tx_dam.*',
-					'tx_dam',
-					'tx_dam_mm_cat',
-					'tx_dam_cat',
-					' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam.file_name LIKE \'' . $file . '\''
-				);
-#var_dump(t3lib_div::debug($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery));
-				$resultMM = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
-#var_dump($resultMM['catId']);
-				if($resultMM['catId'] == $this->conf['selectedCategory']) {
-					$array[$dir] = $array[$dir]+1;
-				}
-			}
-		}
-#var_dump(t3lib_div::debug($GLOBALS['TYPO3_DB']->debug_lastBuiltQuery));
-		return $array;
-	}
+            $files = t3lib_div::getFilesInDir(
+                    $this->conf['mainFolder'].$dir,
+                    '',
+                    0,
+                    1
+                    );
+
+            if(count($files)) {
+                foreach($files as $file){
+
+                    $res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+                        'tx_dam_cat.uid as catId, tx_dam.*',
+                        'tx_dam',
+                        'tx_dam_mm_cat',
+                        'tx_dam_cat',
+                        ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam.file_name LIKE \'' . $file . '\''
+                        );
+                    $resultMM = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res);
+                    $uid[] = $resultMM['uid'];
+                }
+                
+                foreach($uid as $record) {
+
+                    $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'uid_foreign',
+			'tx_dam_mm_cat',
+			'uid_local=' . $record
+                    );
+
+                    $result = '';
+
+                    while($resultRecord = $GLOBALS['TYPO3_DB']->sql_fetch_row($res)) {
+                        $result = $result . '|' . $resultRecord['0'];
+                        $arrayRes[$record] = explode('|', substr($result, 1));
+                    };
+                }
+            }
+            if(in_array($cat, $arrayRes[$record])) {
+                $noOfFiles = $noOfFiles +1;
+            }
+            
+            return $noOfFiles;
+        }
 
 	/**
 	 * Creates an list of all documents types in which data for a given category is stored
@@ -205,23 +219,20 @@ $GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
 		$dirsFromFileSystem = $this->getFolderNamesFromFilesystem($this->conf['mainFolder']);
 		$specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf);
 		$this->conf['directories'] = array_diff($dirsFromFileSystem, $specialUsageItemDirs);
-#var_dump($this->conf['directories']);
-		$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
-#var_dump($this->conf['selectedCategory']);
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+
+                $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'title',
 			'tx_dam_cat',
 			'uid=' . $this->conf['selectedCategory']
 		);
 		list($catTitle) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
-#var_dump($catTitle);
-		$noOfFiles = $this->getNumberOfFilesPerDirectory($this->conf['directories']);
-#var_dump($noOfFiles);
-		foreach($this->conf['directories'] as $type){
-			if($noOfFiles[$type]) {
-				$docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($type) . '">' . $this->translate($type) . '</li>';
+
+                foreach($this->conf['directories'] as $dir){
+                    $noOfFiles = $this->getNumberOfFilesPerDirectoryAndCategory($dir,$this->conf['selectedCategory']);
+                    if($noOfFiles) {
+				$docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $this->translate($dir) . '</li>';
 			}
-		}
+                }
 
 		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
 			<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
@@ -268,7 +279,6 @@ $GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
 	}
 
 }
-
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi4/class.tx_jhedamextender_pi4.php'])	{
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi4/class.tx_jhedamextender_pi4.php']);
