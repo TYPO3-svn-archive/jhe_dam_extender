@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<type>module</type>
+		<description>Language labels for extension 'jhe_dam_extender'</description>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="pi1_title">DAM special usage</label>
+			<label index="pi1_plus_wiz_description">Frontend module to display DAM-media for special uses</label>
+			<label index="pi2_title">DAM category menue</label>
+            <label index="pi2_plus_wiz_description">Generates a navigation menue form DAM categories</label>
+			<label index="pi3_title">DAM special usage menue</label>
+            <label index="pi3_plus_wiz_description">Adds a navigation menu for several kinds of special uasges</label>
+			<label index="pi4_title">DAM file list</label>
+            <label index="pi4_plus_wiz_description">DAM File List (per Category)</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="pi1_title">DAM spezielle Verwendung</label>
+			<label index="pi1_plus_wiz_description">Frontendmodul zur Ausgabe von DAM-Medien für spezielle Verwendungen</label>
+			<label index="pi2_title">DAM Kategoriemenü</label>
+            <label index="pi2_plus_wiz_description">Erstellt ein Navigationsmenü aus den DAM_Kategorien</label>
+			<label index="pi3_title">DAM Navigationsmenü für spezielle Verwendungen</label>
+            <label index="pi3_plus_wiz_description">Gibt ein Navigationsmenü für verschiedene spezielle Verwendungen aus.</label>
+			<label index="pi4_title">DAM Dateiliste</label>
+            <label index="pi4_plus_wiz_description">DAM Dateiliste je Kategorie</label>
+		</languageKey>
+	</data>
+</T3locallang>

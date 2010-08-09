@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T3DataStructure>
+	<meta>
+		<langDisable>1</langDisable>
+	</meta>
+	<ROOT>
+		<type>array</type>
+		<el>
+			<mediaFolder>
+				<TCEforms>
+					<label>Auswahl Medien-Ordner</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>pages</allowed>
+						<minitems>1</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</mediaFolder>
+			<parentCat>
+				<TCEforms>
+					<label>Hauptkategorie</label>
+					<config>
+						<type>select</type>							
+						<form_type>user</form_type>
+						<userFunc>EXT:dam/lib/class.tx_dam_tcefunc.php:tx_dam_tceFunc->getSingleField_selectTree</userFunc>
+							
+						<treeViewClass>EXT:dam/components/class.tx_dam_selectionCategory.php:tx_dam_selectionCategory</treeViewClass>
+						<foreign_table>tx_dam_cat</foreign_table>
+						<size>1</size>
+						<autoSizeMax>5</autoSizeMax>
+						<minitems>1</minitems>
+						<maxitems>99</maxitems>
+						<default></default>
+					</config>
+				</TCEforms>
+			</parentCat>
+			<backPage>
+				<TCEforms>
+					<label>Auswahl Übersichtsseite</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>pages</allowed>
+						<minitems>1</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</backPage>
+		</el>
+	</ROOT>
+</T3DataStructure> 
