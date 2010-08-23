@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T3DataStructure>
+	<meta>
+		<langDisable>1</langDisable>
+	</meta>
+	<ROOT>
+		<type>array</type>
+		<el>
+			<mediaFolder>
+				<TCEforms>
+					<label>Auswahl Medien-Ordner</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>pages</allowed>
+						<minitems>1</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</mediaFolder>
+			<selectCategory	>
+				<TCEforms>
+					<label>Auswahl Kategorie</label>
+					<config>
+						<type>select</type>
+						<foreign_table>tx_dam_cat</foreign_table>
+						<maxitems>1</maxitems>
+						<size>1</size>
+						<multiple>0</multiple>
+					</config>
+				</TCEforms>
+			</selectCategory>
+			<specialUsage>
+				<TCEforms>
+					<label>Spezielle Verwendung als</label>
+					<config>
+						<type>select</type>
+						<foreign_table>tx_jhedamextender_usage</foreign_table>
+						<maxitems>1</maxitems>
+						<size>1</size>
+						<multiple>0</multiple>
+					</config>
+				</TCEforms>
+			</specialUsage>
+			<folderSpecialUsage>
+				<TCEforms>
+					<label>Verzeichnis für spezielle Verwendung</label>
+					<config>
+						<type>group</type>
+						<internal_type>folder</internal_type>
+					</config>
+				</TCEforms>
+			</folderSpecialUsage>
+			<viewMode>
+				<TCEforms>
+					<label>Ausgabe</label>
+					<config>
+						<type>select</type>
+						<items type="array">
+							<numIndex index="0" type="array">
+								<numIndex index="0">Liste</numIndex>
+								<numIndex index="1">list</numIndex>
+							</numIndex>
+							<numIndex index="1" type="array">
+								<numIndex index="0">Download-Button</numIndex>
+								<numIndex index="1">dlButton</numIndex>
+							</numIndex>
+						</items>
+						<maxitems>1</maxitems>
+						<size>1</size>
+						<multiple>0</multiple>
+					</config>
+				</TCEforms>
+			</viewMode>
+		</el>
+	</ROOT>
+</T3DataStructure> 

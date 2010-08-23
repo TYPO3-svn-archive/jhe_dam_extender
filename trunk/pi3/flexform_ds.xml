@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T3DataStructure>
+	<meta>
+		<langDisable>1</langDisable>
+	</meta>
+	<ROOT>
+		<type>array</type>
+		<el>
+			<mediaFolder>
+				<TCEforms>
+					<label>Auswahl Medien-Ordner</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>pages</allowed>
+						<minitems>1</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</mediaFolder>
+			<targetPage>
+				<TCEforms>
+					<label>Seite für die Ansicht "Spezielle Verwendung"</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>pages</allowed>
+						<minitems>1</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</targetPage>
+		</el>
+	</ROOT>
+</T3DataStructure> 
