@@ -9,3 +9,6 @@ thumbImageWidth = 50
 
 # cat=basic; type=int; label= Period of day in which data is marked as new
 newPeriod = 14
+
+# cat=basic; type=string; label=Name of the folder in the filesystem in which the links_xxx.txt will be stored
+linkFolder =

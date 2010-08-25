@@ -75,6 +75,18 @@ hr {
 	float: left;
 }
 
+.listrowLinkTitle, .listrowLinkTitleData {
+    width: 33%;
+    float: left;
+}
+
+.listrowLinkDescription, .listrowLinkDescriptionData {
+    width: 66%;
+    float: left;
+}
+
+
+
 .tx-jhedamextender-pi4-navDokType {
 	cursor: pointer;
 }

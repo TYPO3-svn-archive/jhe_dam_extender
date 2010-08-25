@@ -25,23 +25,26 @@ if (!defined ('PATH_typo3conf')) die ('Could not access this script directly!');
 
 require_once(PATH_tslib.'class.tslib_pibase.php');
 require_once(PATH_tslib.'class.tslib_content.php');
+require_once(t3lib_extMgm::extPath("jhe_dam_extender") . 'util/util.php');
 
 class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
-	var $extKey = 'jhe_dam_extender';
+    var $extKey = 'jhe_dam_extender';
 
-	/**
-	 * Main Methode
-	 *
-	 * @return	string
-	 */
-	public function main() {
+    /**
+    * Main Methode
+    *
+    * @return	string
+    */
+    public function main() {
 
-		//Generate TSFE object to use in ajax class
-		$this->cObj = t3lib_div::makeInstance('tslib_cObj');
-		tslib_eidtools::connectDB();
+        $util = new util();
 
-		$TSFEclassName = t3lib_div::makeInstanceClassName('tslib_fe');
+	//Generate TSFE object to use in ajax class
+	$this->cObj = t3lib_div::makeInstance('tslib_cObj');
+	tslib_eidtools::connectDB();
+
+	$TSFEclassName = t3lib_div::makeInstanceClassName('tslib_fe');
         $id = isset($HTTP_GET_VARS['id']) ? $HTTP_GET_VARS['id'] : 0;
 
         $GLOBALS['TSFE'] = new $TSFEclassName($TYPO3_CONF_VARS, $id, '0', 1, '', '', '', '');
@@ -56,214 +59,231 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
         $GLOBALS['TSFE']->set_no_cache();
         $this->cObj = t3lib_div::makeInstance('tslib_cObj');
 
-        //language support
-		$this->lang = $this->getLanguageSupport();
-
         //GET-Params
         $type = t3lib_div::_GET('docType');
-		$catId = t3lib_div::_GET('catId');
+	$catId = t3lib_div::_GET('catId');
 
-		//get data from ext_local_conf
-		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-		$mainFolder = $this->extconf['mainFolder'];
+	//get data from ext_local_conf
+	$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+	$mainFolder = $this->extconf['mainFolder'];
 
-		//Prepare where clause for select statement
-		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $catId;
+	//Prepare where clause for select statement
+	$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+	$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $catId;
 
-		//generate SQL request
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-			'tx_dam_cat.title as catTitle, tx_dam.*',
-			'tx_dam',
-			'tx_dam_mm_cat',
-			'tx_dam_cat',
-			$where
-		);
+	//generate SQL request
+	$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+            'tx_dam_cat.title as catTitle, tx_dam.*',
+            'tx_dam',
+            'tx_dam_mm_cat',
+            'tx_dam_cat',
+            $where
+	);
 
-		// Make list table rows for specific dosument types
-		$items=array();
-		while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-
-			$itemFilePath = strtolower(substr($this->internal['currentRow']['file_path'], strlen($mainFolder), -1));
-
-			if($itemFilePath == $type){
-				$items[]=$this->makeListItem($this->extconf);
-			}
-		}
-
-		//generate HTML output (with headers)
-		$output .= '<h4>' . $this->translate($type) . '</h4>
-			<div' . $this->pi_classParam('listrow') . '>' .
-				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->translate('bezeichnung') . '</div>' .
-				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->translate('groesse') . '</div>' .
-				'<div' . $this->pi_classParam('listrowDate') . '>' . $this->translate('datum') . '</div>' .
-				'<div' . $this->pi_classParam('listrowImage') . '>' . $this->translate('vorschau') . '</div>' .
-				'<div' . $this->pi_classParam('listrowType') . '>' . $this->translate('typ') . '</div>' .
-				'<div' . $this->pi_classParam('listrowLink') . '>' . $this->translate('download') . '</div>' .
-			'</div>
-			<hr />
-			<div'.$this->pi_classParam('list').'>
-				'.implode(chr(10),$items).'
-			</div>';
-
-		return $output;
+	// Make list table rows for specific dosument types
+	$items=array();
+                
+	while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
+            $itemFilePath = strtolower(substr($this->internal['currentRow']['file_path'], strlen($mainFolder), -1));
+            if($itemFilePath == $type){
+                $items[]=$this->makeListItem($this->extconf);
+            }
 	}
 
-	/**
-	 * Implodes a single row from a database to a single line
-	 *
-	 * @param	array		$extconf: extension configuration variables
-	 * @return	Imploded		$output: HTML per column
-	 */
-	function makeListItem($extconf)	{
+        $linkFolder = strtolower($this->extconf['linkFolder']);
 
-		$this->extconf = $extconf;
+	//generate HTML output (with headers)
 
-		//language support
-		$this->lang = $this->getLanguageSupport();
+        if($linkFolder != $type) {
+            $output .= '<h4>' . $util->translate($type) . '</h4>
+                <div' . $this->pi_classParam('listrow') . '>' .
+                    '<div' . $this->pi_classParam('listrowTitle') . '>' . $util->translate('bezeichnung') . '</div>' .
+                    '<div' . $this->pi_classParam('listrowSize') . '>' . $util->translate('groesse') . '</div>' .
+                    '<div' . $this->pi_classParam('listrowDate') . '>' . $util->translate('datum') . '</div>' .
+                    '<div' . $this->pi_classParam('listrowImage') . '>' . $util->translate('vorschau') . '</div>' .
+                    '<div' . $this->pi_classParam('listrowType') . '>' . $util->translate('typ') . '</div>' .
+                    '<div' . $this->pi_classParam('listrowLink') . '>' . $util->translate('download') . '</div>' .
+		'</div>
+		<hr />
+		<div'.$this->pi_classParam('list').'>
+                    '.implode(chr(10),$items).'
+		</div>';
+        } else {
+            $output = '<h4>' . $util->translate($type) . '</h4>
+                <div' . $this->pi_classParam('listrow') . '>
+                    <div' . $this->pi_classParam('listrowLinkTitle') . '>' . $util->translate('link_title') . '</div>
+                        <div' . $this->pi_classParam('listrowLinkDescription') . '>' . $util->translate('link_description') . '</div>
+                </div>
+                <hr />
+                <div'.$this->pi_classParam('list').'>
+                    '. $this->getLinks($this->extconf).'
+		</div>';
+        }
+                
+	return $output;
+    }
 
-		//generates an array with all possible file types from which thumbnails can be generated
-		$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
+    /**
+    * Implodes a single row from a database to a single line
+    *
+    * @param	array		$extconf: extension configuration variables
+    * @return	Imploded	$output: HTML per column
+    */
+    function makeListItem($extconf)	{
+        $util = new util();
+	$this->extconf = $extconf;
 
-		//generates preview thumbnails
-		if(in_array($this->getFieldContent('file_type'), $workingTypes)) {
+	//generates an array with all possible file types from which thumbnails can be generated
+	$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
 
-			$imgPath = $this->getFieldContent('file_path') . $this->getFieldContent('file_name');
+        //generates preview thumbnails
+	if(in_array($this->getFieldContent('file_type'), $workingTypes)) {
+            $imgPath = $this->getFieldContent('file_path') . $this->getFieldContent('file_name');
 
-			$imgData = getimagesize($imgPath);
-			$imgWidth = $imgData[0];
-			$imgHeight = $imgData[1];
+            $imgData = getimagesize($imgPath);
+            $imgWidth = $imgData[0];
+            $imgHeight = $imgData[1];
 
-			$scape = '';
-			if($imgWidth == $imgHeight){
-				$scape = 'square';
-			} else if ($imgWidth > $imgHeight) {
-				$scape = 'landscape';
-			} else if ($imgWidth < $imgHeight) {
-				$scape = 'portrait';
-			}
+            $scape = '';
+            if($imgWidth == $imgHeight){
+                $scape = 'square';
+            } else if ($imgWidth > $imgHeight) {
+                $scape = 'landscape';
+            } else if ($imgWidth < $imgHeight) {
+                $scape = 'portrait';
+            }
 
-			$thumbImgWidth = $this->extconf['thumbImageWidth'];
+            $thumbImgWidth = $this->extconf['thumbImageWidth'];
 
-			switch($scape) {
-				case 'square':
-					$imgWidthCalc = $thumbImgWidth;
-					break;
-				case 'landscape':
-					$imgWidthCalc = $thumbImgWidth;
-					break;
-				case 'portrait':
-					$imgWidthCalc = intval($thumbImgWidth * ($imgWidth / $imgHeight));
-					break;
-			}
+            switch($scape) {
+                case 'square':
+                    $imgWidthCalc = $thumbImgWidth;
+		break;
+		case 'landscape':
+                    $imgWidthCalc = $thumbImgWidth;
+		break;
+		case 'portrait':
+                    $imgWidthCalc = intval($thumbImgWidth * ($imgWidth / $imgHeight));
+		break;
+            }
 
-			$preview = array(
-				'file' => $imgPath,
-				'file.' => array(
-					'width' => $imgWidthCalc
-				),
-				'altText' => $this->getFieldContent('title')
-			);
-		} else {
-			$preview = array(
-				'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
-				'file.' => array(
-					'width' => '50'
-				),
-				'altText' => '' . $this->translate('nothumbavailable') . ''
-			);
-		}
-
-		//get icon for document type
-		$typeIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/icons/' . $this->getFieldContent('file_type') . '.gif'
-		);
-
-		//get download icon
-		$downloadIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
-			'altText' => '' . $this->translate('downloadlink') . ''
-		);
-
-		//get creation date
-		if($this->getFieldContent('date_cr')+$this->daysToSeconds($this->extconf['newPeriod']) > time()) {
-			//get new icon
-			$newIcon = array(
-				'file' => 'typo3conf/ext/jhe_dam_extender/res/img/new.gif',
-				'altText' => '' . $this->translate('isnew') . ''
-			);
-		} else {
-			$newIcon = '';
-		}
-
-
-		//generates HTML output
-		$output .= '
-			<div' . $this->pi_classParam('listrow') . '>' .
-				'<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</div>' .
-				'<div' . $this->pi_classParam('listrowSize') . '>' . $this->getFieldContent('file_size') . ' ' . $this->translate('byte') . '</div>' .
-				'<div' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('crdate')) . '</div>' .
-				'<div' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</div>' .
-				'<div' . $this->pi_classParam('listrowType') . '>' . $this->cObj->IMAGE($typeIcon) . '</div>' .
-				'<div' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . ' ' . $this->translate('downloadlink') . '</a></div>' .
-			'</div>
-			<hr />
-			';
-
-		return $output;
+            $preview = array(
+                'file' => $imgPath,
+		'file.' => array(
+                    'width' => $imgWidthCalc
+		),
+		'altText' => $this->getFieldContent('title')
+            );
+	} else {
+            $preview = array(
+		'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
+		'file.' => array(
+                    'width' => '50'
+		),
+		'altText' => '' . $util->translate('nothumbavailable') . ''
+            );
 	}
 
-	/**
-	 * Returns the content of a given field
-	 *
-	 * @param	string		$fN: name of table field
-	 * @return	string		Value of the field
-	 */
-	function getFieldContent($fN)	{
-		switch($fN) {
-			case 'uid':
-				return $this->pi_list_linkSingle($this->internal['currentRow'][$fN],$this->internal['currentRow']['uid'],1);	// The "1" means that the display of single items is CACHED! Set to zero to disable caching.
-			break;
+	//get icon for document type
+	$typeIcon = array(
+            'file' => 'typo3conf/ext/jhe_dam_extender/res/img/icons/' . $this->getFieldContent('file_type') . '.gif'
+	);
 
-			default:
-				return $this->internal['currentRow'][$fN];
-			break;
-		}
+	//get download icon
+        $downloadIcon = array(
+            'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
+            'altText' => '' . $util->translate('downloadlink') . ''
+	);
+
+	//get creation date
+	if($this->getFieldContent('date_mod')+$util->daysToSeconds($this->extconf['newPeriod']) > time()) {
+            //get new icon
+            $newIcon = array(
+                'file' => 'typo3conf/ext/jhe_dam_extender/res/img/new.gif',
+		'altText' => '' . $util->translate('isnew') . ''
+            );
+	} else {
+            $newIcon = '';
 	}
 
-	/**
-	 * Translates labels and output
-	 *
-	 * @param	string		$type: string to be translated
-	 * @return	string		translated string
-	 */
-	function translate($type){
-		return $this->lang->sL('LLL:EXT:jhe_dam_extender/ajax/locallang.xml:'. strtolower($type) .'', 1);
-	}
+        //Convert filesize to kb
+        $file_size = round($this->getFieldContent('file_size') / 1024);
 
-	/**
-	 * provides language support for ajax functions
-	 *
-	 * @return	object		$LANG: Language object
-	 */
-	function getLanguageSupport() {
-		require_once(PATH_typo3.'sysext/lang/lang.php');
-		$LANG = t3lib_div::makeInstance('language');
-		$LANG->lang = 'de';
-		$LANG->charSet = 'utf-8';
-        return $LANG;
-	}
+	//generates HTML output
+        $output .= '
+            <div' . $this->pi_classParam('listrow') . '>' .
+                '<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</div>' .
+		'<div' . $this->pi_classParam('listrowSize') . '>' . $file_size . ' ' . $util->translate('kbyte') . '</div>' .
+		'<div' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</div>' .
+		'<div' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</div>' .
+		'<div' . $this->pi_classParam('listrowType') . '>' . $this->cObj->IMAGE($typeIcon) . '</div>' .
+		'<div' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_dl_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . ' ' . $util->translate('downloadlink') . '</a></div>' .
+            '</div>
+            <hr />
+	';
+                
+	return $output;
+    }
 
-	/**
-	 * Calculates seconds form given number of day
-	 *
-	 * @param	int		$days: Number of days given from localconf.php for the period of time a record is marked as new
-	 * @return	int		number of seconds for calculating with timestamps
-	 */
-	function daysToSeconds($days) {
-		return 60*60*24*$days;
-	}
+    /**
+    * Gets link data from a predefined txt-file
+    *
+    * @param	array		$extconf: extension configuration variables
+    * @return	Imploded	$output: HTML per column
+    */
+    function getLinks($extconf) {
+        $this->extconf = $extconf;
+        $util = new util();
 
+        $filePath = $this->extconf['mainFolder'] . $this->extconf['linkFolder'];
+        $currentCategory = t3lib_div::_GET('catId');
+
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+            'tx_dam_cat.title as catTitle',
+            'tx_dam_cat',
+            'uid=' . $currentCategory
+        );
+        $catTitle = $util->catToString(implode($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)));
+        $currentFile = $filePath . '/links_' . $catTitle . '.txt';
+
+        //get link icon
+	$linkIcon = array(
+            'file' => 'typo3conf/ext/jhe_dam_extender/res/img/world.png',
+            'altText' => '' . $util->translate('openslink') . ''
+	);
+
+        if(file_exists($currentFile)){
+            $handle = file($currentFile);
+
+            foreach ($handle as $link) {
+                $linkData = explode('|', $link);
+                $output .= '
+                    <div' . $this->pi_classParam('listrowLinkTitleData') . '><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $this->cObj->IMAGE($linkIcon). ' '. $linkData[1] . '</a></div>
+                    <div' . $this->pi_classParam('listrowLinkDescriptionData') . '>'. $linkData[2] .'</div>
+                    <hr />';
+            }
+            return $output;
+        } else {
+            return 'Fehler aufgetreten!';
+        }
+    }
+
+    /**
+    * Returns the content of a given field
+    *
+    * @param	string		$fN: name of table field
+    * @return	string		Value of the field
+    */
+    function getFieldContent($fN)	{
+        switch($fN) {
+            case 'uid':
+                return $this->pi_list_linkSingle($this->internal['currentRow'][$fN],$this->internal['currentRow']['uid'],1);	// The "1" means that the display of single items is CACHED! Set to zero to disable caching.
+            break;
+	default:
+            return $this->internal['currentRow'][$fN];
+	break;
+        }
+    }
 }
 
 $output = t3lib_div::makeInstance('ajax_getDocumentsByDirectoryAndCategory');
