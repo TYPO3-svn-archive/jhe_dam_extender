@@ -75,7 +75,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
             $content .= $this->createNavPerDocumenttypes($this->conf);
 
             //creating output target for ajaxloader and jquery result
-            $content .= '<div id="doctype_ajaxloader" class="hidden" style="text-align: center; margin: 5px;"><img src="http://192.168.78.130/dev/typo3conf/ext/jhe_dam_extender/res/img/ajaxloader.gif" /></div>';
+            $content .= '<div id="doctype_ajaxloader" class="hidden" style="text-align: center; margin: 5px;"><img src="../res/img/ajaxloader.gif" /></div>';
             $content .= '<div id="docsByType"></div>';
 	}
 

@@ -11,78 +11,63 @@
 }
 
 .listrow {
-	width: 100%;
+	width: 98%;
 	height: auto;
-	clear: both;
+	/*clear: both;*/
 	padding: 3px 5px;
 }
 
 .listrowTitle {
-	width: 250px;
-	margin-right: 5px;
-	float: left;
+	width: 180px;
 }
 
 .listrowSize {
-	width: 100px;
-	margin-right: 5px;
-	float: left;
+	width: 50px;
 }
 
 .listrowDate {
-	width: 100px;
-	margin-right: 5px;
-	float: left;
+	width: 70px;
 }
 
 .listrowImage {
 	width: 80px;
-	margin-right: 5px;
-	float: left;
 	text-align: center;
 }
 
 .listrowImage img {
-	border: 1px solid gray;
-	margin: 0 0 5px 0;
+	/*margin: 0 0 5px 0;*/
+        border: 1px solid gray;
 }
 
 .listrowUsage {
 	width: 50px;
-	margin-right: 5px;
-	float: left;
 }
 
 .listrowCat {
 	width: 80px;
-	margin-right: 5px;
-	float: left;
 }
 
 .listrowType {
-	width: 50px;
-	margin-right: 5px;
-	float: left;
-}
-
-hr {
-	margin: 0 0 5px 0;
-	clear: both;
+	width: 30px;
+        text-align: center;
 }
 
 .listrowLink {
-	width: 100px;
-	float: left;
+	width: 40px;
+        text-align: center;
 }
 
-.listrowLinkTitle, .listrowLinkTitleData {
-    width: 33%;
-    float: left;
+.listrowLinkLink {
+    text-align: center;
+    width: 20px;
 }
 
-.listrowLinkDescription, .listrowLinkDescriptionData {
-    width: 66%;
-    float: left;
+.listrowLinkTitle {
+    width: 200px;
+}
+
+.listrowLinkDescription {
+    
 }
 
 

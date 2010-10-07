@@ -90,7 +90,7 @@
             <label index="datum">Datum</label>
             <label index="vorschau">Vorschau</label>
             <label index="typ">Dateityp</label>
-            <label index="download">Download-Link</label>
+            <label index="download">Download</label>
             <label index="nothumbavailable">Keine Vorschau möglich</label>
             <label index="downloadlink">Download</label>
             <label index="byte">Byte</label>

@@ -96,28 +96,30 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
         if($linkFolder != $type) {
             $output .= '<h4>' . $util->translate($type) . '</h4>
-                <div' . $this->pi_classParam('listrow') . '>' .
-                    '<div' . $this->pi_classParam('listrowTitle') . '>' . $util->translate('bezeichnung') . '</div>' .
-                    '<div' . $this->pi_classParam('listrowSize') . '>' . $util->translate('groesse') . '</div>' .
-                    '<div' . $this->pi_classParam('listrowDate') . '>' . $util->translate('datum') . '</div>' .
-                    '<div' . $this->pi_classParam('listrowImage') . '>' . $util->translate('vorschau') . '</div>' .
-                    '<div' . $this->pi_classParam('listrowType') . '>' . $util->translate('typ') . '</div>' .
-                    '<div' . $this->pi_classParam('listrowLink') . '>' . $util->translate('download') . '</div>' .
-		'</div>
-		<hr />
-		<div'.$this->pi_classParam('list').'>
-                    '.implode(chr(10),$items).'
-		</div>';
+                        <table width="100%" border="0" cellspacing="2" cellpadding="2">
+                                <tr>
+                                    <th' . $this->pi_classParam('listrowTitle') . ' scope="col">' . $util->translate('bezeichnung') . '</th>
+                                    <th' . $this->pi_classParam('listrowSize') . ' scope="col">' . $util->translate('groesse') . '</th>
+                                    <th' . $this->pi_classParam('listrowDate') . ' scope="col">' . $util->translate('datum') . '</th>
+                                    <th' . $this->pi_classParam('listrowImage') . ' scope="col">' . $util->translate('vorschau') . '</th>
+                                    <th' . $this->pi_classParam('listrowType') . ' scope="col">' . $util->translate('typ') . '</th>
+                                    <th' . $this->pi_classParam('listrowLink') . ' scope="col">' . $util->translate('download') . '</th>
+                                </tr>
+                                    ' . implode(chr(10),$items) . '
+                            </table>
+                        ';
+
         } else {
             $output = '<h4>' . $util->translate($type) . '</h4>
-                <div' . $this->pi_classParam('listrow') . '>
-                    <div' . $this->pi_classParam('listrowLinkTitle') . '>' . $util->translate('link_title') . '</div>
-                        <div' . $this->pi_classParam('listrowLinkDescription') . '>' . $util->translate('link_description') . '</div>
-                </div>
-                <hr />
-                <div'.$this->pi_classParam('list').'>
-                    '. $this->getLinks($this->extconf).'
-		</div>';
+                            <table width="100%" border="0" cellspacing="2" cellpadding="2">
+                                <tr>
+                                    <th' . $this->pi_classParam('listrowLinkLink') . '></th>
+                                    <th' . $this->pi_classParam('listrowLinkTitle') . ' scope="col">' . $util->translate('link_title') . '</th>
+                                    <th' . $this->pi_classParam('listrowLinkDescription') . ' scope="col">' . $util->translate('link_description') . '</th>
+                                </tr>
+                                    '. $this->getLinks($this->extconf).'
+                            </table>
+                ';
         }
                 
 	return $output;
@@ -211,15 +213,14 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
 	//generates HTML output
         $output .= '
-            <div' . $this->pi_classParam('listrow') . '>' .
-                '<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</div>' .
-		'<div' . $this->pi_classParam('listrowSize') . '>' . $file_size . ' ' . $util->translate('kbyte') . '</div>' .
-		'<div' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</div>' .
-		'<div' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</div>' .
-		'<div' . $this->pi_classParam('listrowType') . '>' . $this->cObj->IMAGE($typeIcon) . '</div>' .
-		'<div' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_dl_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . ' ' . $util->translate('downloadlink') . '</a></div>' .
-            '</div>
-            <hr />
+                <tr>
+                    <td' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</td>
+                    <td' . $this->pi_classParam('listrowSize') . '>' . $file_size . ' ' . $util->translate('kbyte') . '</td>
+                    <td' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</td>
+                    <td' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</td>
+                    <td' . $this->pi_classParam('listrowType') . '>' . $this->cObj->IMAGE($typeIcon) . '</td>
+                    <td' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
+                </tr>
 	';
                 
 	return $output;
@@ -258,9 +259,12 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
             foreach ($handle as $link) {
                 $linkData = explode('|', $link);
                 $output .= '
-                    <div' . $this->pi_classParam('listrowLinkTitleData') . '><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $this->cObj->IMAGE($linkIcon). ' '. $linkData[1] . '</a></div>
-                    <div' . $this->pi_classParam('listrowLinkDescriptionData') . '>'. $linkData[2] .'</div>
-                    <hr />';
+                    <tr>
+                        <td' . $this->pi_classParam('listrowLinkLink') . '><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $this->cObj->IMAGE($linkIcon). '</a></td>
+                        <td' . $this->pi_classParam('listrowLinkTitle') . '><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $linkData[1] . '</a></td>
+                        <td' . $this->pi_classParam('listrowLinkDescription') . '>'. $linkData[2] .'</td>
+                    </tr>
+                ';
             }
             return $output;
         } else {
