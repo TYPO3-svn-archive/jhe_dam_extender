@@ -182,6 +182,20 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		'file.' => array(
                     'width' => '50'
 		),
+                'imageLinkWrap' => '1',
+                'imageLinkWrap.' => array (
+                    'enable' => '1',
+                    'bodyTag' => '<body bgcolor="#000000" leftmargin="2" topmargin="2" marginwidth="2" marginheight="2">',
+                    'wrap' => '<center><a href="javascript:close();"> | </a></center>',
+                    'width' => '640m',
+                    'height' => '640m',
+                    'title' => 'Mein Fenstertext',
+                    'JSwindow' => '1',
+                    'JSwindow.' => array(
+                        'newWindow' => '1',
+                        'expand' => '20,20'
+                    ),
+                ),
 		'altText' => '' . $util->translate('nothumbavailable') . ''
             );
 	}

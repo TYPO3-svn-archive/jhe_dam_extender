@@ -198,18 +198,18 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 
 	//Generate Header for each section
 	$out .= '<h4>' . $newFolder . '</h4>
-            <div' . $this->pi_classParam('listrow') . '>' .
-                '<div' . $this->pi_classParam('listrowTitle') . '>' . $util->translate('bezeichnung') . '</div>' .
-		'<div' . $this->pi_classParam('listrowSize') . '>' . $util->translate('groesse') . '</div>' .
-		'<div' . $this->pi_classParam('listrowDate') . '>' . $util->translate('datum') . '</div>' .
-		'<div' . $this->pi_classParam('listrowImage') . '>' . $util->translate('vorschau') . '</div>' .
-		'<div' . $this->pi_classParam('listrowType') . '>' . $util->translate('typ') . '</div>' .
-		'<div' . $this->pi_classParam('listrowLink') . '>' . $util->translate('downloadlink') . '</div>' .
-            '</div>
-            <hr />
-            <div'.$this->pi_classParam('list').'>
-                '.implode(chr(10),$items).'
-            </div>';
+                           <table width="100%" border="0" cellspacing="2" cellpadding="2">
+                                <tr>
+                                    <th class="listrowTitle" scope="col">' . $util->translate('bezeichnung') . '</th>
+                                    <th class="listrowSize" scope="col">' . $util->translate('groesse') . '</th>
+                                    <th class="listrowDate" scope="col">' . $util->translate('datum') . '</th>
+                                    <th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>
+                                    <th class="listrowType" scope="col">' . $util->translate('typ') . '</th>
+                                    <th class="listrowLink" scope="col">' . $util->translate('downloadlink') . '</th>
+                                </tr>
+                                    ' . implode(chr(10),$items) . '
+                            </table>
+                        ';
 
 	return $out;
     }
@@ -294,16 +294,15 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	$folder = substr($this->getFieldContent('file_path'),26, -1);
 
 	$content .= '
-            <div' . $this->pi_classParam('listrow') . '>' .
-                '<div' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</div>' .
-		'<div' . $this->pi_classParam('listrowSize') . '>' . $this->getFieldContent('file_size') . ' Byte</div>' .
-		'<div' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('crdate')) . '</div>' .
-		'<div' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</div>' .
-		'<div' . $this->pi_classParam('listrowType') . '>' . $this->cObj->IMAGE($typeIcon) . '</div>' .
-		'<div' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . ' Download</a></div>' .
-            '</div>
-            <hr />
-	';
+                <tr>
+                    <td class="listrowTitle">' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</td>
+                    <td class="listrowSize">' . $this->getFieldContent('file_size') . ' Byte</td>
+                    <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('crdate')) . '</td>
+                    <td class="listrowImage">' . $this->cObj->IMAGE($preview) . '</td>
+                    <td class="listrowType">' . $this->cObj->IMAGE($typeIcon) . '</td>
+                    <td class="listrowLink"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
+                </tr>
+            ';
 
 	return $content;
     }

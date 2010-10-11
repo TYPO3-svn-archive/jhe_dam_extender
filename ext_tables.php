@@ -3,52 +3,76 @@ if (!defined('TYPO3_MODE')) {
 	die ('Access denied.');
 }
 $tempColumns = array (
-	'tx_jhedamextender_usage' => array (
-		'exclude' => 0,
-		'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_usage',
-		'config' => array (
-			'type' => 'select',
-			'items' => array (
-				array('',''),
-			),
-			'foreign_table' => 'tx_jhedamextender_usage',
-			'foreign_table_where' => 'AND tx_jhedamextender_usage.pid=###CURRENT_PID### ORDER BY tx_jhedamextender_usage.uid',
-			'size' => 10,
-			'minitems' => 0,
-			'maxitems' => 10,
-			'wizards' => array(
-				'_PADDING'  => 2,
-				'_VERTICAL' => 1,
-				'add' => array(
-					'type'   => 'script',
-					'title'  => 'Create new record',
-					'icon'   => 'add.gif',
-					'params' => array(
-						'table'    => 'tx_jhedamextender_usage',
-						'pid'      => '###CURRENT_PID###',
-						'setValue' => 'prepend'
-					),
-					'script' => 'wizard_add.php',
-				),
-				'list' => array(
-					'type'   => 'script',
-					'title'  => 'List',
-					'icon'   => 'list.gif',
-					'params' => array(
-						'table' => 'tx_jhedamextender_usage',
-						'pid'   => '###CURRENT_PID###',
-					),
-					'script' => 'wizard_list.php',
-				),
-			),
-		)
-	),
+    'tx_jhedamextender_usage' => array (
+        'exclude' => 0,
+        'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_usage',
+        'config' => array (
+            'type' => 'select',
+            'items' => array (
+                array('',0),
+            ),
+            'foreign_table' => 'tx_jhedamextender_usage',
+            'foreign_table_where' => 'AND tx_jhedamextender_usage.pid=###CURRENT_PID### ORDER BY tx_jhedamextender_usage.uid',
+            'size' => 1,
+            'minitems' => 0,
+            'maxitems' => 1,
+            'wizards' => array(
+                '_PADDING'  => 2,
+                '_VERTICAL' => 1,
+                'add' => array(
+                    'type'   => 'script',
+                    'title'  => 'Create new record',
+                    'icon'   => 'add.gif',
+                    'params' => array(
+                        'table'    => 'tx_jhedamextender_usage',
+                        'pid'      => '###CURRENT_PID###',
+                        'setValue' => 'prepend'
+                    ),
+                    'script' => 'wizard_add.php',
+                ),
+                'list' => array(
+                    'type'   => 'script',
+                    'title'  => 'List',
+                    'icon'   => 'list.gif',
+                    'params' => array(
+                        'table' => 'tx_jhedamextender_usage',
+                        'pid'   => '###CURRENT_PID###',
+                    ),
+                    'script' => 'wizard_list.php',
+                ),
+            ),
+        )
+    ),
+    'tx_jhedamextender_path' => array (
+        'exclude' => 0,
+        'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_path',
+        'config' => array (
+            'type' => 'input',
+            'size' => '30',
+        )
+    ),
+    'tx_jhedamextender_order' => array (
+        'exclude' => 0,
+        'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_order',
+        'config' => array (
+            'type'     => 'input',
+            'size'     => '4',
+            'max'      => '4',
+            'eval'     => 'int',
+            'checkbox' => '0',
+            'range'    => array (
+                'upper' => '1000',
+                'lower' => '10'
+            ),
+            'default' => 0
+        )
+    ),
 );
 
 
 t3lib_div::loadTCA('tx_dam');
 t3lib_extMgm::addTCAcolumns('tx_dam',$tempColumns,1);
-t3lib_extMgm::addToAllTCAtypes('tx_dam','tx_jhedamextender_usage;;;;1-1-1');
+t3lib_extMgm::addToAllTCAtypes('tx_dam','tx_jhedamextender_usage;;;;1-1-1, tx_jhedamextender_path, tx_jhedamextender_order');
 
 $TCA['tx_jhedamextender_usage'] = array (
 	'ctrl' => array (
