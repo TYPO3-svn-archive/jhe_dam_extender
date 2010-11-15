@@ -42,9 +42,11 @@
             <label index="downloadlink">Download</label>
             <label index="byte">Byte</label>
             <label index="kbyte">KB</label>
+            <label index="nummer">No.</label>
             <label index="headerdoctypes">Document types</label>
             <label index="err_no_cat">Select a category...</label>
             <label index="err_no_doctypes">No documents in this category...</label>
+            <label index="err_no_specialusage">No special usage in this category...</label>
             <label index="isnew">New document</label>
             <label index="listFieldHeader_usage_ea619ffddc">Usage</label>
             <label index="pi_list_browseresults_prev">&lt; Previous</label>
@@ -95,9 +97,11 @@
             <label index="downloadlink">Download</label>
             <label index="byte">Byte</label>
             <label index="kbyte">KB</label>
+            <label index="nummer">Nr.</label>
             <label index="headerdoctypes">Dokumentenarten</label>
             <label index="err_no_cat">Bitte wählen Sie eine Kategorie aus...</label>
             <label index="err_no_doctypes">In dieser Kategorie sind keine Dokumente vorhanden...</label>
+            <label index="err_no_specialusage">In dieser Kategorie gibt es keine spezielle Verwendung.</label>
             <label index="isnew">Neues Dokument</label>
             <label index="listFieldHeader_usage_ea619ffddc">Nutzung</label>
             <label index="pi_list_browseresults_prev">&lt; Vorherige</label>

@@ -58,6 +58,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	$this->pi_initPIFlexForm();
 	$this->conf['viewMode'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
 	$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+        $this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
 
 	//getting title and folder of special usage
 	$su = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -111,61 +112,47 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	$content = '';	// Clear var;
 	$content .= '<h3>' .$this->conf['suTitle']. ' ' . $this->getCategoryHeader($this->conf) . '</h3>';
 
-	$dirsFromFileSystem = $this->getFolderNamesFromFilesystem($this->conf);
+        //select all tx_dam records for the given category and special usage
+        //put together where clause
+        $GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+
+        $where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+        $where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
+        $where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
+
+        $orderBy = 'tx_dam.tx_jhedamextender_order';
+
+        $res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+            'tx_dam.*',
+            'tx_dam',
+            'tx_dam_mm_cat',
+            'tx_dam_cat',
+            $where,
+            '',
+            $orderBy
+	);
+
+        $content .= $this->makelist($res);
 
 	$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
 	$this->internal['maxPages']=t3lib_div::intInRange($lConf['maxPages'],0,1000,2);;		// The maximum number of "pages" in the browse-box: "Page 1", "Page 2", etc.
 
-        $where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-	$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-	$where .= ' AND ((tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\')';
-	$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
+        $whereCount = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+	$whereCount .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
+	$whereCount .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
+	//$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
 
 	//Count all results
-	$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+	$resCount = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
             'COUNT(\'tx_dam.*\')',
             'tx_dam',
             'tx_dam_mm_cat',
             'tx_dam_cat',
             $where
 	);
-	list($this->internal['res_count']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+	list($this->internal['res_count']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($resCount);
 
-	//SQL-Query based on existing dirs in filesystem
-	foreach ($dirsFromFileSystem as $dir){
-            $filePath = $this->conf['mainFolder'] . $dir . '/';
-            $where = '';
-            $where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-            $where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'] . ' AND tx_dam.file_path = \'' . $filePath . '\'';
-            $where .= ' AND ((tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\')';
-            $where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
-
-            //Count results per directory
-            $resDir = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-                'COUNT(\'tx_dam.*\')',
-		'tx_dam',
-		'tx_dam_mm_cat',
-		'tx_dam_cat',
-		$where
-            );
-            list($this->internal['res_count_dir']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($resDir);
-
-            // Make listing query, pass query to SQL database:
-            $resList = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-                'tx_dam_cat.title as catTitle, tx_dam.*',
-		'tx_dam',
-		'tx_dam_mm_cat',
-		'tx_dam_cat',
-		$where
-            );
-
-            //Getting the list for every directory which is not empty
-            if($this->internal['res_count_dir'] != 0) {
-                $content.=$this->makelist($resList, $dir);
-            }
-	}
-
-	// Adds the result browser:
+        // Adds the result browser:
 	$content.=$this->pi_list_browseresults();
 
 	// Returns the content from the plugin.
@@ -179,7 +166,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
     * @param	[type]		$folder: String with section identifier
     * @return	A		HTML list if result items
     */
-    function makelist($res, $folder)	{
+    function makelist($res)	{
         $util = new util();
         // Make list table rows
 	$items=array();
@@ -187,29 +174,16 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
             $items[]=$this->makeListItem();
 	}
 
-	if(substr_count($folder, '/') > 0){
-            $arrFolder = explode('/', $folder);
-            foreach($arrFolder as $val) {
-                $newFolder .= $util->translate($val) . ' ';
-            }
-	} else {
-            $newFolder = $util->translate($folder);
-	}
-
 	//Generate Header for each section
-	$out .= '<h4>' . $newFolder . '</h4>
-                           <table width="100%" border="0" cellspacing="2" cellpadding="2">
-                                <tr>
-                                    <th class="listrowTitle" scope="col">' . $util->translate('bezeichnung') . '</th>
-                                    <th class="listrowSize" scope="col">' . $util->translate('groesse') . '</th>
-                                    <th class="listrowDate" scope="col">' . $util->translate('datum') . '</th>
-                                    <th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>
-                                    <th class="listrowType" scope="col">' . $util->translate('typ') . '</th>
-                                    <th class="listrowLink" scope="col">' . $util->translate('downloadlink') . '</th>
-                                </tr>
-                                    ' . implode(chr(10),$items) . '
-                            </table>
-                        ';
+	$out .= '<table width="100%" border="0" cellspacing="2" cellpadding="2">
+                    <tr>
+                        <th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>
+                        <th class="listrowTitle" scope="col" colspan="3">' . $util->translate('bezeichnung') . '</th>
+                        <th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>
+                    </tr>
+                    ' . implode(chr(10),$items) . '
+                 </table>
+                 ';
 
 	return $out;
     }
@@ -291,15 +265,24 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
             $newIcon = '';
 	}
 
-	$folder = substr($this->getFieldContent('file_path'),26, -1);
+        if($this->getFieldContent('tx_jhedamextender_path')){
+            $folder = '
+                <tr>
+                    <td colspan="5"><strong>' . $this->getFieldContent('tx_jhedamextender_path') . '</strong></td>
+                </tr>';
+        }
 
 	$content .= '
-                <tr>
-                    <td class="listrowTitle">' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</td>
-                    <td class="listrowSize">' . $this->getFieldContent('file_size') . ' Byte</td>
-                    <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('crdate')) . '</td>
-                    <td class="listrowImage">' . $this->cObj->IMAGE($preview) . '</td>
+                ' . $folder . '
+                <tr class="tr_upper">
+                    <td class="listrowNo">' . $this->getFieldContent('tx_jhedamextender_order') . '</td>
+                    <td class="listrowTitle" colspan="3"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->getFieldContent('title') . '</a> ' .$this->cObj->IMAGE($newIcon) . '</td>
+                    <td class="listrowImage" rowspan="2">' . $this->cObj->IMAGE($preview) . '</td>
+                </tr>
+                <tr class="tr_lower">
                     <td class="listrowType">' . $this->cObj->IMAGE($typeIcon) . '</td>
+                    <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('crdate')) . '</td>
+                    <td class="listrowSize">' . $this->getFieldContent('file_size') . ' Byte</td>
                     <td class="listrowLink"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
                 </tr>
             ';

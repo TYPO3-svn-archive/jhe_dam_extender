@@ -50,17 +50,23 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 	$this->pi_setPiVarDefaults();
 	$this->pi_loadLL();
 
-        $this->conf['selectCategory'] = t3lib_div::_GET('damcat');
+        //get dam category
+        if(!t3lib_div::_GET('damcat')){
+            $this->pi_initPIFlexForm();
+            $this->conf['selectedCategory'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'catSelector');
+        } else {
+            $this->conf['selectedCategory'] = t3lib_div::_GET('damcat');
+        }
 
-	if(!$this->conf['selectCategory']) {
+        if(!$this->conf['selectedCategory']) {
             $content = '';
 	} else {
-            $this->pi_initPIFlexForm();
+            //$this->pi_initPIFlexForm();
             $this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
             $this->conf['targetPage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'targetPage');
 
             $content='
-                <div' . $this->pi_classParam('specialUsageList') . '>' . $this->getSpecialUsageItems($this->conf) . '</div>
+                <div' . $this->pi_classParam('specialUsageList') . '>' . $this->getSpecialUsageItems($this->conf) . $this->pi_getLL('err_no_specialusage') .'</div>
             ';
 	}
 
@@ -74,35 +80,46 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
     * @return	string		$content: ul content
     */
     function getSpecialUsageItems($conf) {
+        $util = new util();
         $this->conf = $conf;
+        $this->pi_loadLL();
 
+        //Select all given special usage items from db
 	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            '*',
+            'uid,usage_ea619ffddc',
             'tx_jhedamextender_usage',
             'tx_jhedamextender_usage.deleted = 0 AND tx_jhedamextender_usage.hidden = 0 AND tx_jhedamextender_usage.pid = ' . $this->conf['mediaFolder']
 	);
 
-	while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
-            $this->conf['title'] = $row['usage_ea619ffddc'];
-            $this->conf['specialUsageId'] = $row['uid'];
+        //Collect every result from $res to a multi dimensional array
+        while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+            $resArray[] = $row;
+        }
+
+        //loop through every array from $resArray to count the number of records which belong to the given category and to the special usage item
+        foreach($resArray as $i) {
+            $this->conf['title'] = $i['usage_ea619ffddc'];
+            $this->conf['specialUsageId'] = $i['uid'];
 
             $res_mm = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
                 'COUNT(\'tx_dam.*\')',
 		'tx_dam',
 		'tx_dam_mm_cat',
 		'tx_dam_cat',
-		' AND tx_dam.tx_jhedamextender_usage = ' . $row['uid'] . ' AND tx_dam_cat.uid = ' . $this->conf['selectCategory']
+		' AND tx_dam.tx_jhedamextender_usage = ' . $i['uid'] . ' AND tx_dam_cat.uid = ' . $this->conf['selectedCategory']
             );
 
+            //count results
             $counter = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_mm));
 
+            //if any results given give back a list item
             if($counter['0']) {
                 $result .= '<li>' . $this->makeLink($this->conf) . '</li>';
             }
-	}
+        }
 
 	if(!$result){
-            $content = '';
+            $content = $util->translate('err_no_specialusage');
 	} else {
             $content = '<ul>' .$result . '</ul>';
 	}
@@ -122,7 +139,7 @@ class tx_jhedamextender_pi3 extends tslib_pibase {
 
 	$params = array(
             'specialUsage' => $this->conf['specialUsageId'],
-            'damcat' => $this->conf['selectCategory'],
+            'damcat' => $this->conf['selectedCategory'],
             'no_cache' => 1
 	);
 	$pid = $this->conf['targetPage'];

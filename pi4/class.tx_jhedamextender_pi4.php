@@ -50,14 +50,19 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 	$this->pi_setPiVarDefaults();
 	$this->pi_loadLL();
 
-        //get GET variables
-	$this->conf['selectedCategory'] = t3lib_div::_GET('damcat');
-
+        //get dam category
+        if(!t3lib_div::_GET('damcat')){
+            $this->pi_initPIFlexForm();
+            $this->conf['selectedCategory'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'catSelector');
+        } else {
+            $this->conf['selectedCategory'] = t3lib_div::_GET('damcat');
+        }
+        
 	if(!$this->conf['selectedCategory']){
             $content = $this->pi_getLL('err_no_cat');
 	} else {
             //get data from be flexform
-            $this->pi_initPIFlexForm();
+            //$this->pi_initPIFlexForm();
             $this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
 
             //Initializing params from ext_conf_template
@@ -75,7 +80,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
             $content .= $this->createNavPerDocumenttypes($this->conf);
 
             //creating output target for ajaxloader and jquery result
-            $content .= '<div id="doctype_ajaxloader" class="hidden" style="text-align: center; margin: 5px;"><img src="../res/img/ajaxloader.gif" /></div>';
+            $content .= '<div id="doctype_ajaxloader" class="hidden" style="text-align: center; margin: 5px;"><img src="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/img/ajaxloader.gif" /></div>';
             $content .= '<div id="docsByType"></div>';
 	}
 
@@ -288,7 +293,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 	';
 
 	if(!$docType) {
-            $content = $catTitle . ': ' . $util->translate('err_no_doctypes');
+            $content = '<h3>' . $util->translate('headerdoctypes') . ' ' . $catTitle . '</h3><div>' . $util->translate('err_no_doctypes'). '</div>';
 	} else {
             $content = '<h3>' . $util->translate('headerdoctypes') . ' ' . $catTitle . '</h3><div><ul>'. $docType . '</ul></div>';
 	}

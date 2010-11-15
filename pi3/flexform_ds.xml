@@ -32,6 +32,19 @@
 					</config>
 				</TCEforms>
 			</targetPage>
+                        <catSelector>
+                            <TCEforms>
+                                <label>DAM-Kategorie</label>
+                                <config>
+                                    <type>group</type>
+                                    <internal_type>db</internal_type>
+                                    <allowed>tx_dam_cat</allowed>
+                                    <minitems>1</minitems>
+                                    <maxitems>1</maxitems>
+                                    <size>1</size>
+				</config>
+                            </TCEforms>
+                        </catSelector>
 		</el>
 	</ROOT>
 </T3DataStructure> 

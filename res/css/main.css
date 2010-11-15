@@ -17,21 +17,30 @@
 	padding: 3px 5px;
 }
 
+.listrowNo {
+    width: 30px;
+    text-align: center;
+    border-bottom: 1px solid #888;
+}
 .listrowTitle {
-	width: 180px;
+	width: 250px;
+        border-bottom: 1px solid #888;
 }
 
 .listrowSize {
-	width: 50px;
+	/*width: 50px;*/
+        border-bottom: 1px solid #888;
 }
 
 .listrowDate {
-	width: 70px;
+	/*width: 70px;*/
+        border-bottom: 1px solid #888;
 }
 
 .listrowImage {
 	width: 80px;
 	text-align: center;
+        border-bottom: 1px solid #888;
 }
 
 .listrowImage img {
@@ -50,20 +59,22 @@
 .listrowType {
 	width: 30px;
         text-align: center;
+        border-bottom: 1px solid #888;
 }
 
 .listrowLink {
-	width: 40px;
+	/*width: 40px;*/
         text-align: center;
+        border-bottom: 1px solid #888;
 }
 
 .listrowLinkLink {
     text-align: center;
-    width: 20px;
+    /*width: 20px;*/
 }
 
 .listrowLinkTitle {
-    width: 200px;
+    /*width: 200px;*/
 }
 
 .listrowLinkDescription {
@@ -96,7 +107,7 @@
 	padding: 3px 5px;
 }
 
-clistrow {
+.listrow {
 	width: 100%;
 	height: auto;
 	clear: both;
@@ -159,4 +170,14 @@ clistrow {
 .tx-jhedamextender-pi1-listrowLink {
 	width: 100px;
 	float: left;
+}
+
+
+.tx-jhedamextender-pi1 table {
+    width: 420px;
+    margin-top: 5px;
+}
+
+.tx-jhedamextender-pi1 table .tr_upper .listrowNo, .tx-jhedamextender-pi1 table .tr_upper .listrowTitle {
+    border-bottom: 0;
 }

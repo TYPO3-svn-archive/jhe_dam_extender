@@ -62,7 +62,7 @@ $tempColumns = array (
             'checkbox' => '0',
             'range'    => array (
                 'upper' => '1000',
-                'lower' => '10'
+                'lower' => '1'
             ),
             'default' => 0
         )
