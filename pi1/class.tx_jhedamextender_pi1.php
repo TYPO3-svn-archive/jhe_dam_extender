@@ -81,7 +81,8 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	} else {
             switch($this->conf['viewMode'])	{
                 case 'dlButton':
-                    if ($this->countChilds($this->conf) == 0 && $this->getNumberofFilesPerCategory($this->conf) != 0) {
+                    #if ($this->countChilds($this->conf) == 0 && $this->getNumberofFilesPerCategory($this->conf) != 0) {
+                    if ($this->getNumberofFilesPerCategory($this->conf) != 0) {
 			return $this->pi_wrapInBaseClass($this->dlButtonView($this->conf));
                     }
 		break;
@@ -120,7 +121,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         $where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
         $where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
 
-        $orderBy = 'tx_dam.tx_jhedamextender_order';
+        $orderBy = 'tx_dam.tx_jhedamextender_path, tx_dam.tx_jhedamextender_order';
 
         $res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
             'tx_dam.*',
@@ -178,7 +179,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	$out .= '<table width="100%" border="0" cellspacing="2" cellpadding="2">
                     <tr>
                         <th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>
-                        <th class="listrowTitle" scope="col" colspan="3">' . $util->translate('bezeichnung') . '</th>
+                        <th class="listrowTitle" scope="col" colspan="4">' . $util->translate('bezeichnung') . '</th>
                         <th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>
                     </tr>
                     ' . implode(chr(10),$items) . '
@@ -268,18 +269,26 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         if($this->getFieldContent('tx_jhedamextender_path')){
             $folder = '
                 <tr>
-                    <td colspan="5"><strong>' . $this->getFieldContent('tx_jhedamextender_path') . '</strong></td>
+                    <td class="listrowPath" colspan="6"><strong>' . $this->getFieldContent('tx_jhedamextender_path') . '</strong></td>
                 </tr>';
         }
+
+        $sorter = $this->getFieldContent('tx_jhedamextender_order');
+        if(!$sorter){
+            $sorter = '-';
+        }
+
 
 	$content .= '
                 ' . $folder . '
                 <tr class="tr_upper">
-                    <td class="listrowNo">' . $this->getFieldContent('tx_jhedamextender_order') . '</td>
-                    <td class="listrowTitle" colspan="3"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->getFieldContent('title') . '</a> ' .$this->cObj->IMAGE($newIcon) . '</td>
+                    <td class="listrowNo">' . $sorter . '</td>
+                    <td class="listrowTitle" colspan="3">' . $this->getFieldContent('title') . '</td>
+                    <td class="listrowNew">' .$this->cObj->IMAGE($newIcon) . '</td>
                     <td class="listrowImage" rowspan="2">' . $this->cObj->IMAGE($preview) . '</td>
                 </tr>
                 <tr class="tr_lower">
+                    <td></td>
                     <td class="listrowType">' . $this->cObj->IMAGE($typeIcon) . '</td>
                     <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('crdate')) . '</td>
                     <td class="listrowSize">' . $this->getFieldContent('file_size') . ' Byte</td>
@@ -302,10 +311,9 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         $GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
             <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
             <script type="text/javascript">
-
                 $(document).ready(function() {
                     // AJAX Request per eID
-                    $("#dlButton").bind("click", function() {
+                    $(".dlButton").bind("click", function() {
                     $("#dl_ajaxloader").show();
                     $.ajax({
                         url: "?eID=downloadSpecialUsage",
@@ -332,8 +340,8 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         $btTitle = $btTitle['0'] . ' ' . $this->pi_getLL('lbl_dl_button');
 
 	$content = '
-            <div'.$this->pi_classParam('dlButtonView').'>
-                <input type="button" name="dlButton" id="dlButton" value="' . $btTitle . '">
+            <div class="dlButton">
+                ' . $btTitle . '
             </div>
             <div id="dl_ajaxloader" class="hidden" style="text-align: center; margin: 5px;">
                 <img src="typo3conf/ext/jhe_dam_extender/res/img/ajaxloader.gif" />

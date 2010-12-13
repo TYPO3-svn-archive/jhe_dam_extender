@@ -83,8 +83,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
             $content .= '<div id="doctype_ajaxloader" class="hidden" style="text-align: center; margin: 5px;"><img src="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/img/ajaxloader.gif" /></div>';
             $content .= '<div id="docsByType"></div>';
 	}
-
-        return $content;
+        return $this->pi_wrapInBaseClass($content);
     }
 
     /**
@@ -131,7 +130,8 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 
         while($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
             foreach($dirs as $folder){
-                $compare = strncmp($folder, $row['usage_ea619ffddc'], strlen($row['usage_ea619ffddc']));
+                $specialFolderName = str_replace(' ', '_', $row['usage_ea619ffddc']);
+                $compare = strncmp($folder, $specialFolderName, strlen($specialFolderName));
                 if($compare == '0'){
                     $result[] = $folder;
 		}
@@ -247,7 +247,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
         $util = new util();
 
         $dirsFromFileSystem = $this->getFolderNamesFromFilesystem($this->conf['mainFolder']);
-	$specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf);
+        $specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf);
 	$this->conf['directories'] = array_diff($dirsFromFileSystem, $specialUsageItemDirs);
 
         $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -272,8 +272,14 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 
 	$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
             <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+            <script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.easing-1.3.pack.js"></script>
+            <script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.fancybox-1.3.1.pack.js"></script>
+            <link rel="stylesheet" href="typo3conf/ext/jq_fancybox/fancybox/css/jquery.fancybox.css" type="text/css">
+
             <script type="text/javascript">
+
                 $(document).ready(function() {
+
                     // AJAX Request per eID
                     $(".tx-jhedamextender-pi4-navDokType").bind("click", function() {
                         $("#docsByType").hide();
@@ -288,6 +294,38 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
                             }
 			});
                     });
+
+                    $("img.jqfancybox").live("click", function(){
+                        alert(this.id);
+                        $.ajax({
+                            url: "?eID=fancybox",
+                            data: "&docId=" + this.id + "",
+                            success: function(result){
+                                alert(result);
+                                result.fancybox({
+                                    "padding": 0,
+                                    "speedIn": 300,
+                                    "speedOut": 300,
+                                    "changeSpeed": 300,
+                                    "transitionIn": "elastic",
+                                    "transitionOut": "elastic",
+                                    "titlePosition": "over",
+                                    "titleShow": true,
+                                    "easingIn": "swing",
+                                    "easingOut": "swing",
+                                    "showCloseButton": true,
+                                    "showNavArrows": true,
+                                    "enableEscapeButton": true,
+                                    "overlayShow": true,
+                                    "overlayOpacity": 0.4,
+                                    "overlayColor": "#666",
+                                    "centerOnScroll": false,
+                                    "hideOnContentClick": false
+                                });
+                            }
+                        });
+                    });
+
                 });
             </script>
 	';

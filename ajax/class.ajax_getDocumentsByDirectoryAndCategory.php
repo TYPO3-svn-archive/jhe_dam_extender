@@ -98,12 +98,9 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
             $output .= '<h4>' . $util->translate($type) . '</h4>
                         <table width="100%" border="0" cellspacing="2" cellpadding="2">
                                 <tr>
-                                    <th' . $this->pi_classParam('listrowTitle') . ' scope="col">' . $util->translate('bezeichnung') . '</th>
-                                    <th' . $this->pi_classParam('listrowSize') . ' scope="col">' . $util->translate('groesse') . '</th>
-                                    <th' . $this->pi_classParam('listrowDate') . ' scope="col">' . $util->translate('datum') . '</th>
-                                    <th' . $this->pi_classParam('listrowImage') . ' scope="col">' . $util->translate('vorschau') . '</th>
-                                    <th' . $this->pi_classParam('listrowType') . ' scope="col">' . $util->translate('typ') . '</th>
-                                    <th' . $this->pi_classParam('listrowLink') . ' scope="col">' . $util->translate('download') . '</th>
+                                    <!--<th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>-->
+                                    <th class="listrowTitle" colspan="5" scope="col">' . $util->translate('bezeichnung') . '</th>
+                                    <th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>
                                 </tr>
                                     ' . implode(chr(10),$items) . '
                             </table>
@@ -174,30 +171,20 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		'file.' => array(
                     'width' => $imgWidthCalc
 		),
-		'altText' => $this->getFieldContent('title')
+		'altText' => $this->getFieldContent('title'),
+                #'params' => 'class="imagebox" onClick="getFancybox(\'' . $imgPath . '\');return false;"'
+                'params' => 'class="jqfancybox" id="' . $this->getFieldContent('uid') . '"'
             );
+            $previewImg = $this->cObj->IMAGE($preview);
 	} else {
             $preview = array(
 		'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
 		'file.' => array(
                     'width' => '50'
 		),
-                'imageLinkWrap' => '1',
-                'imageLinkWrap.' => array (
-                    'enable' => '1',
-                    'bodyTag' => '<body bgcolor="#000000" leftmargin="2" topmargin="2" marginwidth="2" marginheight="2">',
-                    'wrap' => '<center><a href="javascript:close();"> | </a></center>',
-                    'width' => '640m',
-                    'height' => '640m',
-                    'title' => 'Mein Fenstertext',
-                    'JSwindow' => '1',
-                    'JSwindow.' => array(
-                        'newWindow' => '1',
-                        'expand' => '20,20'
-                    ),
-                ),
 		'altText' => '' . $util->translate('nothumbavailable') . ''
             );
+            $previewImg = $this->cObj->IMAGE($preview);
 	}
 
 	//get icon for document type
@@ -211,6 +198,9 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
             'altText' => '' . $util->translate('downloadlink') . ''
 	);
 
+        //Convert filesize to kb
+        $file_size = round($this->getFieldContent('file_size') / 1024);
+
 	//get creation date
 	if($this->getFieldContent('date_mod')+$util->daysToSeconds($this->extconf['newPeriod']) > time()) {
             //get new icon
@@ -218,27 +208,36 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
                 'file' => 'typo3conf/ext/jhe_dam_extender/res/img/new.gif',
 		'altText' => '' . $util->translate('isnew') . ''
             );
+
+            $titleTd = '
+                    <td class="listrowNew">' . $this->cObj->IMAGE($newIcon) . '</td>
+                    <td class="listrowTitle" colspan="4">' . $this->getFieldContent('title') . '</td>
+                    ';
 	} else {
+
             $newIcon = '';
-	}
+            $titleTd = '
+                    <td class="listrowTitle" colspan="5">' . $this->getFieldContent('title') . '</td>
+                    ';
+        }
 
-        //Convert filesize to kb
-        $file_size = round($this->getFieldContent('file_size') / 1024);
-
-	//generates HTML output
-        $output .= '
-                <tr>
-                    <td' . $this->pi_classParam('listrowTitle') . '>' . $this->getFieldContent('title') . ' ' . $this->cObj->IMAGE($newIcon) . '</td>
-                    <td' . $this->pi_classParam('listrowSize') . '>' . $file_size . ' ' . $util->translate('kbyte') . '</td>
-                    <td' . $this->pi_classParam('listrowDate') . '>' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</td>
-                    <td' . $this->pi_classParam('listrowImage') . '>' . $this->cObj->IMAGE($preview) . '</td>
-                    <td' . $this->pi_classParam('listrowType') . '>' . $this->cObj->IMAGE($typeIcon) . '</td>
-                    <td' . $this->pi_classParam('listrowLink') . '><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
+        //generates HTML output
+            $output .= '
+                <tr class="tr_upper">
+                    ' . $titleTd . '
+                    <td class="listrowImage" rowspan="2">' . $previewImg . '</td>
                 </tr>
-	';
+                <tr class="tr_lower">
+                    <td class="listrowType" colspan="2">' . $this->cObj->IMAGE($typeIcon) . '</td>
+                    <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</td>
+                    <td class="listrowSize">' . $file_size . ' ' . $util->translate('kbyte') . '</td>
+                    <td class="listrowLink"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
+                </tr>
+            ';
                 
 	return $output;
     }
+
 
     /**
     * Gets link data from a predefined txt-file
@@ -274,8 +273,8 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
                 $linkData = explode('|', $link);
                 $output .= '
                     <tr>
-                        <td' . $this->pi_classParam('listrowLinkLink') . '><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $this->cObj->IMAGE($linkIcon). '</a></td>
-                        <td' . $this->pi_classParam('listrowLinkTitle') . '><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $linkData[1] . '</a></td>
+                        <td' . $this->pi_classParam('listrowLinkLink') . ' valign="top"><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $this->cObj->IMAGE($linkIcon). '</a></td>
+                        <td' . $this->pi_classParam('listrowLinkTitle') . ' valign="top"><a href=\'' . $linkData[0] . '\' target=\'_blank\' alt=\'' . $linkData[1] . '\' title=\'' . $linkData[1] . '\'>' . $linkData[1] . '</a></td>
                         <td' . $this->pi_classParam('listrowLinkDescription') . '>'. $linkData[2] .'</td>
                     </tr>
                 ';
