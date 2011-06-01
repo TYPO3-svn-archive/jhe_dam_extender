@@ -69,7 +69,7 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 	$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
 	$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $selectCategory;
 	$where .= ' AND ((tx_dam.tx_jhedamextender_usage LIKE \'%' . $specialUsage . '%\')';
-	$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $specialUsage .'%\' AND tx_dam.file_path LIKE \''. $folderSpecialUsage .'%\'))';
+	//$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $specialUsage .'%\' AND tx_dam.file_path LIKE \''. $folderSpecialUsage .'%\'))';
 
 	//Getting category title
 	$resCat = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(

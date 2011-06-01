@@ -77,10 +77,12 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
             'tx_dam',
             'tx_dam_mm_cat',
             'tx_dam_cat',
-            $where
+            $where,
+            '',
+            'tx_dam.title'
 	);
 
-	// Make list table rows for specific dosument types
+	// Make list table rows for specific document types
 	$items=array();
                 
 	while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
@@ -100,7 +102,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
                                 <tr>
                                     <!--<th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>-->
                                     <th class="listrowTitle" colspan="5" scope="col">' . $util->translate('bezeichnung') . '</th>
-                                    <th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>
+                                    <!--<th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>-->
                                 </tr>
                                     ' . implode(chr(10),$items) . '
                             </table>
@@ -166,16 +168,85 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		break;
             }
 
-            $preview = array(
+            $original = array(
                 'file' => $imgPath,
-		'file.' => array(
-                    'width' => $imgWidthCalc
-		),
-		'altText' => $this->getFieldContent('title'),
-                #'params' => 'class="imagebox" onClick="getFancybox(\'' . $imgPath . '\');return false;"'
-                'params' => 'class="jqfancybox" id="' . $this->getFieldContent('uid') . '"'
             );
+            $originalImg = $this->cObj->IMAGE($original);
+            $originalPicData = explode(' ', $originalImg);
+            $originalPic = substr($originalPicData[1], 5, -1);
+
+
+
+            $preview['file'] = $imgPath;
+            $preview['altText'] = $this->getFieldContent('title');
+            $preview['titleText'] = $this->getFieldContent('title');
+            $preview['imageLinkWrap'] = 1;
+            $preview['imageLinkWrap.']['enable'] = 1;
+            $preview['file.']['width'] = $imgWidthCalc;
+
+            if(t3lib_extMgm::isLoaded('pmkshadowbox')) {  // use Lightbox
+                $preview['imageLinkWrap.']['typolink.']['title']      = $this->getFieldContent('title');
+                $preview['imageLinkWrap.']['typolink.']['parameter']  = $originalPic;
+                $preview['imageLinkWrap.']['typolink.']['ATagParams'] = ' rel="shadowbox" target="_blank"';
+            } else { // use simple 'on Click enlarge' mechanism
+                $preview['imageLinkWrap.']['title'] = $this->getFieldContent('title');
+                $preview['imageLinkWrap.']['bodyTag'] = '<body>';
+                $preview['imageLinkWrap.']['wrap'] ='<a href="javascript:close();"> | </a>';
+                $preview['imageLinkWrap.']['JSwindow'] = 1;
+                if ($preview['imageLinkWrap.']['JSwindow.']['expand'] == '') {
+                    $preview['imageLinkWrap.']['JSwindow.']['expand'] = '5,5';
+                }
+                $preview['imageLinkWrap.']['JSwindow.']['newWindow'] = 1;
+            }
+
             $previewImg = $this->cObj->IMAGE($preview);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+            #var_dump($this->cObj->IMAGE($original));
+            
+            #$previewImg = '<a rel="shadowbox" target="_blank" href="' . $originalPic . '">'.$this->cObj->IMAGE($preview).'</a>';
+            #$previewImg = $this->cObj->IMAGE($preview);
+            /*$previewImg = $this->cObj->imageLinkWrap(
+                    $this->cObj->IMAGE($preview),
+                    $originalPic,
+                    array(
+                        'enable' => 'true',
+                        #'JSwindow' => 'true'
+                        'typolink.' => array(
+                            'ATagParams' => 'rel="shadowbox"'
+                        )
+                   )
+                );*/
+
 	} else {
             $preview = array(
 		'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
@@ -205,19 +276,19 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 	if($this->getFieldContent('date_mod')+$util->daysToSeconds($this->extconf['newPeriod']) > time()) {
             //get new icon
             $newIcon = array(
-                'file' => 'typo3conf/ext/jhe_dam_extender/res/img/new.gif',
+                'file' => 'fileadmin/templates/img/new2.png',
 		'altText' => '' . $util->translate('isnew') . ''
             );
 
             $titleTd = '
                     <td class="listrowNew">' . $this->cObj->IMAGE($newIcon) . '</td>
-                    <td class="listrowTitle" colspan="4">' . $this->getFieldContent('title') . '</td>
+                    <td class="listrowTitle" colspan="3"><strong>' . $this->getFieldContent('title') . '</strong></td>
                     ';
 	} else {
 
             $newIcon = '';
             $titleTd = '
-                    <td class="listrowTitle" colspan="5">' . $this->getFieldContent('title') . '</td>
+                    <td class="listrowTitle" colspan="4"><strong>' . $this->getFieldContent('title') . '</strong></td>
                     ';
         }
 
@@ -225,7 +296,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
             $output .= '
                 <tr class="tr_upper">
                     ' . $titleTd . '
-                    <td class="listrowImage" rowspan="2">' . $previewImg . '</td>
+                    <!--<td class="listrowImage" rowspan="2">' . $previewImg . '</td>-->
                 </tr>
                 <tr class="tr_lower">
                     <td class="listrowType" colspan="2">' . $this->cObj->IMAGE($typeIcon) . '</td>

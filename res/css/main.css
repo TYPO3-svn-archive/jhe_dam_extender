@@ -89,7 +89,10 @@
     
 }
 
-
+.tx-jhedamextender-pi1 table tr .listrowPath {
+    color: #fff;
+    background-color: #f55b0a;
+}
 
 
 
@@ -109,9 +112,8 @@
 	-khtml-border-radius:10px;
 }
 
-
 #doctype_ajaxloader {
-    border: 1px solid green;
+    /*border: 1px solid green;*/
 }
 
 .tx-jhedamextender-pi4 ul {
@@ -134,25 +136,11 @@
     -khtml-border-radius:2px;
 }
 
-
-
-
-
-
-
 .tx-jhedamextender-pi1 tr a,
 .tx-jhedamextender-pi4 tr a {
     background: none;
     padding: 0;
 }
-
-.tx-jhedamextender-pi1 table tr:hover td,
-.tx-jhedamextender-pi4 table tr:hover td {
-    background: none;
-}
-
-
-
 
 .tx-jhedamextender-pi1 .dlButton {
     background-color: #f55b0a;
@@ -169,9 +157,6 @@
     font-weight: bold;
     border: 0;
 }
-
-
-
 
 .tx-jhedamextender-pi3 ul {
     margin: 0;
@@ -196,4 +181,11 @@
     color: #fff;
     font-weight: bold;
     text-decoration: none;
+}
+
+.tx-jhedamextender-pi3-specialUsageList {
+    margin: 0;
+    padding: 0;
+    color: #f55b0a;
+    text-align: center;
 }

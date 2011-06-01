@@ -119,7 +119,8 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 
         $where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
         $where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-        $where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
+        //$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
+        $where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
 
         $orderBy = 'tx_dam.tx_jhedamextender_path, tx_dam.tx_jhedamextender_order';
 
@@ -132,7 +133,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
             '',
             $orderBy
 	);
-
+        
         $content .= $this->makelist($res);
 
 	$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
@@ -141,7 +142,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         $whereCount = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
 	$whereCount .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
 	$whereCount .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
-	//$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
+	$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
 
 	//Count all results
 	$resCount = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
@@ -152,7 +153,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
             $where
 	);
 	list($this->internal['res_count']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($resCount);
-
+        
         // Adds the result browser:
 	$content.=$this->pi_list_browseresults();
 
@@ -169,24 +170,27 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
     */
     function makelist($res)	{
         $util = new util();
+
         // Make list table rows
 	$items=array();
-	while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))	{
-            $items[]=$this->makeListItem();
+
+        while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
+            $arrFolderPath[] = $this->internal['currentRow']['tx_jhedamextender_path'];
+            $items[]=$this->makeListItem($arrFolderPath);
 	}
 
-	//Generate Header for each section
-	$out .= '<table width="100%" border="0" cellspacing="2" cellpadding="2">
-                    <tr>
-                        <th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>
-                        <th class="listrowTitle" scope="col" colspan="4">' . $util->translate('bezeichnung') . '</th>
-                        <th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>
-                    </tr>
-                    ' . implode(chr(10),$items) . '
-                 </table>
-                 ';
+        //Generate Header for each section
+        $out .= '<table width="100%" border="0" cellspacing="2" cellpadding="2">
+                <tr>
+                    <!--<th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>-->
+                    <th class="listrowTitle" scope="col" colspan="4">' . $util->translate('dokument') . '</th>
+                    <!--<th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>-->
+                </tr>
+                ' . implode(chr(10), $items) . '
+             </table>
+             ';
 
-	return $out;
+ 	return $out;
     }
 
     /**
@@ -194,7 +198,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
     *
     * @return	Imploded		column values
     */
-    function makeListItem()	{
+    function makeListItem($arrFolderPath)	{
         $util = new util();
         $this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 	$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
@@ -229,13 +233,36 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		break;
             }
 
-            $preview = array(
+           $original = array(
                 'file' => $imgPath,
-		'file.' => array(
-                    'width' => $imgWidthCalc
-		),
-		'altText' => $this->getFieldContent('title')
             );
+            $originalImg = $this->cObj->IMAGE($original);
+            $originalPicData = explode(' ', $originalImg);
+            $originalPic = substr($originalPicData[1], 5, -1);
+
+            $preview['file'] = $imgPath;
+            $preview['altText'] = $this->getFieldContent('title');
+            $preview['titleText'] = $this->getFieldContent('title');
+            $preview['imageLinkWrap'] = 1;
+            $preview['imageLinkWrap.']['enable'] = 1;
+            $preview['file.']['width'] = $imgWidthCalc;
+
+            if(t3lib_extMgm::isLoaded('pmkshadowbox')) {  // use Lightbox
+                $preview['imageLinkWrap.']['typolink.']['title']      = $this->getFieldContent('title');
+                $preview['imageLinkWrap.']['typolink.']['parameter']  = $originalPic;
+                $preview['imageLinkWrap.']['typolink.']['ATagParams'] = ' rel="shadowbox" target="_blank"';
+            } else { // use simple 'on Click enlarge' mechanism
+                $preview['imageLinkWrap.']['title'] = $this->getFieldContent('title');
+                $preview['imageLinkWrap.']['bodyTag'] = '<body>';
+                $preview['imageLinkWrap.']['wrap'] ='<a href="javascript:close();"> | </a>';
+                $preview['imageLinkWrap.']['JSwindow'] = 1;
+                if ($preview['imageLinkWrap.']['JSwindow.']['expand'] == '') {
+                    $preview['imageLinkWrap.']['JSwindow.']['expand'] = '5,5';
+                }
+                $preview['imageLinkWrap.']['JSwindow.']['newWindow'] = 1;
+            }
+
+            $previewImg = $this->cObj->IMAGE($preview);
 	} else {
             $preview = array(
                 'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
@@ -244,6 +271,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		),
 		'altText' => $util->translate('nothumbavailable')
             );
+            $previewImg = $this->cObj->IMAGE($preview);
 	}
 
         $typeIcon = array(
@@ -259,15 +287,16 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	if($this->getFieldContent('date_cr')+$util->daysToSeconds($this->extconf['newPeriod']) > time()) {
             //get new icon
             $newIcon = array(
-                'file' => 'typo3conf/ext/jhe_dam_extender/res/img/new.gif',
+                'file' => 'fileadmin/templates/img/new2.png',
 		'altText' => '' . $util->translate('isnew') . ''
             );
 	} else {
             $newIcon = '';
 	}
 
-        if($this->getFieldContent('tx_jhedamextender_path')){
-            $folder = '
+        $countedValues = array_count_values($arrFolderPath);
+        if($countedValues[''.$this->getFieldContent('tx_jhedamextender_path').''] == 1){
+                    $folder = '
                 <tr>
                     <td class="listrowPath" colspan="6"><strong>' . $this->getFieldContent('tx_jhedamextender_path') . '</strong></td>
                 </tr>';
@@ -278,25 +307,45 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
             $sorter = '-';
         }
 
-
 	$content .= '
                 ' . $folder . '
                 <tr class="tr_upper">
-                    <td class="listrowNo">' . $sorter . '</td>
-                    <td class="listrowTitle" colspan="3">' . $this->getFieldContent('title') . '</td>
+                    <!--<td class="listrowNo">' . $sorter . '</td>-->
+                    <td class="listrowTitle" colspan="3"><strong>' . $this->getFieldContent('title') . '</strong><br /><small style="color: #f55b0a;">' . $this->mapFileTypeFromPath($this->getFieldContent('file_path')) . '</small></td>
                     <td class="listrowNew">' .$this->cObj->IMAGE($newIcon) . '</td>
-                    <td class="listrowImage" rowspan="2">' . $this->cObj->IMAGE($preview) . '</td>
+                    <!--<td class="listrowImage" rowspan="2">' . $previewImg . '</td>-->
                 </tr>
                 <tr class="tr_lower">
-                    <td></td>
+                    <!--<td></td>-->
                     <td class="listrowType">' . $this->cObj->IMAGE($typeIcon) . '</td>
-                    <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('crdate')) . '</td>
+                    <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</td>
                     <td class="listrowSize">' . $this->getFieldContent('file_size') . ' Byte</td>
                     <td class="listrowLink"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
                 </tr>
             ';
 
 	return $content;
+    }
+
+    function mapFileTypeFromPath($path) {
+
+        $mapping = array(
+
+            'fileadmin/Mediendatenbank/Broschueren/' => 'Broschüre',
+            'fileadmin/Mediendatenbank/Praesentationen/' => 'Präsentation',
+            'fileadmin/Mediendatenbank/Links/' => 'Link',
+            'fileadmin/Mediendatenbank/Zentrale_Aktionen/' => 'nur in Zentrale Aktion',
+            'fileadmin/Mediendatenbank/Produktblaetter/' => 'Produktblatt',
+            'fileadmin/Mediendatenbank/Produktinformationen/' => 'Produktinformation',
+            'fileadmin/Mediendatenbank/Flyer/' => 'Flyer',
+            'fileadmin/Mediendatenbank/Produktmappe/' => 'nur in Produktmappe',
+            'fileadmin/Mediendatenbank/Formblaetter/' => 'Formblatt',
+            'fileadmin/Mediendatenbank/Plakate/' => 'Plakat',
+
+        );
+
+
+        return $mapping[$path];
     }
 
     /**
@@ -308,6 +357,8 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
     */
     function dlButtonView($conf) {
         $this->conf = $conf;
+	   $util = new util();
+
         $GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
             <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
             <script type="text/javascript">
@@ -337,15 +388,16 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
             'uid = ' . $this->conf['specialUsage']
 	);
 	$btTitle = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res));
-        $btTitle = $btTitle['0'] . ' ' . $this->pi_getLL('lbl_dl_button');
+     $btTitle = $btTitle['0'] . ' ' . $util->translate('lbl_dl_button');
 
 	$content = '
             <div class="dlButton">
                 ' . $btTitle . '
             </div>
-            <div id="dl_ajaxloader" class="hidden" style="text-align: center; margin: 5px;">
+            <div id="dl_ajaxloader" class="hidden" style="text-align: center; margin: 5px 5px 10px 5px;">
                 <img src="typo3conf/ext/jhe_dam_extender/res/img/ajaxloader.gif" />
             </div>
+            <div><small>Mit dem Download-Button können Sie sich die komplette Produktmappe als zip-Datei herunterladen.<br />Dabei werden automatisch alle aktuellen Dokumente zusammengeführt.</small></div>
         ';
 
 	return $content;
@@ -461,6 +513,15 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 
 	return $result;
+    }
+
+    function collectDocumentPaths($array, $path){
+#t3lib_div::debug($path);
+
+        $array[] = $path;
+
+        return $array;
+
     }
 	
 }

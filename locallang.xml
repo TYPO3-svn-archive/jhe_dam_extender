@@ -18,6 +18,7 @@
             <label index="back">Back</label>
             <label index="bilder">Pictures</label>
             <label index="broschueren">Brochures</label>
+            <label index="betriebsanweisungen">Betriebsanweisungen</label>
             <label index="flyer">Flyer</label>
             <label index="formblaetter">Forms</label>
             <label index="links">Links</label>
@@ -25,6 +26,9 @@
             <label index="produktinformationen">Product informations</label>
             <label index="praesentationen">Presentations</label>
             <label index="produktblaetter">Product information sheets</label>
+            <label index="vorschriften">Vorschriften</label>
+            <label index="externe_arbeitshilfen">Externe Arbeitshilfen</label>
+            <label index="interne_arbeitshilfen">Interne Arbeitshilfen</label>
             <label index="produktmappe">Product portfolio</label>
             <label index="arbeitshilfen">Tools</label>
             <label index="kunde">Customer</label>
@@ -33,6 +37,7 @@
             <label index="zdl">Essential services</label>
             <label index="zentrale_aktionen">Essential promotions</label>
             <label index="bezeichnung">Name</label>
+            <label index="dokument">Documents</label>
             <label index="groesse">Size</label>
             <label index="datum">Date</label>
             <label index="vorschau">Preview</label>
@@ -73,6 +78,7 @@
             <label index="back">Zurück</label>
             <label index="bilder">Bilder</label>
             <label index="broschueren">Broschüren</label>
+            <label index="betriebsanweisungen">Betriebsanweisungen</label>
             <label index="flyer">Flyer</label>
             <label index="formblaetter">Formblätter</label>
             <label index="links">Links</label>
@@ -80,6 +86,9 @@
             <label index="produktinformationen">Produktinformationen</label>
             <label index="praesentationen">Präsentationen</label>
             <label index="produktblaetter">Produktblätter</label>
+            <label index="vorschriften">Vorschriften</label>
+            <label index="externe_arbeitshilfen">Externe Arbeitshilfen</label>
+            <label index="interne_arbeitshilfen">Interne Arbeitshilfen</label>
             <label index="produktmappe">Produktmappe</label>
             <label index="arbeitshilfen">Arbeitshilfen</label>
             <label index="kunde">Kunde</label>
@@ -88,6 +97,7 @@
             <label index="zdl">Zentrale Dienstleistungen</label>
             <label index="zentrale_aktionen">Zentrale Aktionen</label>
             <label index="bezeichnung">Bezeichnung</label>
+            <label index="dokument">Dokumente</label>
             <label index="groesse">Größe</label>
             <label index="datum">Datum</label>
             <label index="vorschau">Vorschau</label>
@@ -98,17 +108,17 @@
             <label index="byte">Byte</label>
             <label index="kbyte">KB</label>
             <label index="nummer">Nr.</label>
-            <label index="headerdoctypes">Dokumentenarten</label>
+            <label index="headerdoctypes">Dokumente</label>
             <label index="err_no_cat">Bitte wählen Sie eine Kategorie aus...</label>
             <label index="err_no_doctypes">In dieser Kategorie sind keine Dokumente vorhanden...</label>
-            <label index="err_no_specialusage">In dieser Kategorie gibt es keine spezielle Verwendung.</label>
+            <label index="err_no_specialusage">Für dieses Fachthema existiert derzeit keine Produktmappe.</label>
             <label index="isnew">Neues Dokument</label>
             <label index="listFieldHeader_usage_ea619ffddc">Nutzung</label>
             <label index="pi_list_browseresults_prev">&lt; Vorherige</label>
             <label index="pi_list_browseresults_page">Seite</label>
             <label index="pi_list_browseresults_next">Nächste &gt;</label>
             <label index="pi_list_browseresults_displays">ZEige Ergebnisse ###SPAN_BEGIN###%s bis %s&lt;/span&gt; von ###SPAN_BEGIN###%s&lt;/span&gt;</label>
-            <label index="lbl_dl_button"> Als zip-Datei</label>
+            <label index="lbl_dl_button"> als zip-Datei herunterladen</label>
             <label index="produktbeschreibung">Produktbeschreibung</label>
             <label index="startdownload">Download starten...</label>
             <label index="link_title">Bezeichnung</label>
