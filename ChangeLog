@@ -1,3 +1,7 @@
+2011-07-06 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.0.7
+
+	*pi1:  debugging of orderBy statement by order field (and not path)
+
 2010-06-16 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.0.6
 
 	* debugging label of download button for special usage

@@ -122,7 +122,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         //$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
         $where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
 
-        $orderBy = 'tx_dam.tx_jhedamextender_path, tx_dam.tx_jhedamextender_order';
+        $orderBy = 'tx_dam.tx_jhedamextender_order';
 
         $res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
             'tx_dam.*',
