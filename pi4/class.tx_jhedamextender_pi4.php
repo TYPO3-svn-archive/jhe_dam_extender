@@ -271,7 +271,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
         }
 
 	$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
-            <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+            <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
             <script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.easing-1.3.pack.js"></script>
             <script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.fancybox-1.3.1.pack.js"></script>
             <link rel="stylesheet" href="typo3conf/ext/jq_fancybox/fancybox/css/jquery.fancybox.css" type="text/css">
