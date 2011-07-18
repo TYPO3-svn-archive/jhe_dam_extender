@@ -1,3 +1,7 @@
+2011-07-18 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.0.10
+
+	*pi1:  removed exception for Produktmappe BGM from version 0.0.9
+
 2011-07-18 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.0.9
 
 	*pi1:  debugging of orderBy statement by order field (and not path)
