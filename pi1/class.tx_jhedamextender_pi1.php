@@ -122,8 +122,8 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         //$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
         $where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
 
-		//hack for Produktmappe BGM
-		if($this->conf['selectedCategory'] == '12'){
+		//hack for Produktmappe BGM / GB
+		if($this->conf['selectedCategory'] == '12' || $this->conf['selectedCategory'] == '8'){
 			$orderBy = 'tx_dam.tx_jhedamextender_path,tx_dam.tx_jhedamextender_order';
 		} else {
 			$orderBy = 'tx_dam.tx_jhedamextender_order';
