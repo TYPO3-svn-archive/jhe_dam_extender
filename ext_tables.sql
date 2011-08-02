@@ -3,7 +3,7 @@
 #
 CREATE TABLE tx_dam (
     tx_jhedamextender_usage int(11) DEFAULT '0' NOT NULL,
-    tx_jhedamextender_lowlevel_selection char(1) DEFAULT '' NOT NULL,
+    tx_jhedamextender_lowlevel_selection varchar(255) DEFAULT '' NOT NULL,
     tx_jhedamextender_path tinytext,
     tx_jhedamextender_order int(11) DEFAULT '0' NOT NULL
 );

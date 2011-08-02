@@ -1,3 +1,8 @@
+2011-08-02 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.1.0
+
+	* pi1/ajax: changed programming for new field from version 0.0.11
+	* changed tca settings to have an own tab in record view in tx_dam
+
 2011-07-28 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.0.11
 
 	* main: added new field lowlevel_selection to tx_dam

@@ -58,7 +58,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	$this->pi_initPIFlexForm();
 	$this->conf['viewMode'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
 	$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
-        $this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+     $this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
 
 	//getting title and folder of special usage
 	$su = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
@@ -123,11 +123,11 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         $where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
 
 		//hack for Produktmappe GB
-		if($this->conf['selectedCategory'] == '8'){
-			$orderBy = 'tx_dam.tx_jhedamextender_path,tx_dam.tx_jhedamextender_order';
-		} else {
+		//if($this->conf['selectedCategory'] == '8'){
+		//	$orderBy = 'tx_dam.tx_jhedamextender_path,tx_dam.tx_jhedamextender_order';
+		//} else {
 			$orderBy = 'tx_dam.tx_jhedamextender_order';
-		}
+		//}
 		//correct way:
 		//$orderBy = 'tx_dam.tx_jhedamextender_order';
 
@@ -168,171 +168,196 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	return $content;
     }
 
-    /**
-    * Creates a list from a database query
-    *
-    * @param	ressource		$res: A database result ressource
-    * @param	[type]		$folder: String with section identifier
-    * @return	A		HTML list if result items
-    */
-    function makelist($res)	{
-        $util = new util();
+	/**
+	 * Creates a list from a database query
+	 *
+	 * @param	ressource		$res: A database result ressource
+	 * @param	[type]		$folder: String with section identifier
+	 * @return	A		HTML list if result items
+	 */
+	function makelist($res)	{
+		$util = new util();
 
-        // Make list table rows
-	$items=array();
+		// Make list table rows
+		$items=array();
+		while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
+			$path = $this->internal['currentRow']['tx_jhedamextender_path'];
+			$lowlevel_selection = $this->internal['currentRow']['tx_jhedamextender_lowlevel_selection'];
 
-        while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
-            $arrFolderPath[] = $this->internal['currentRow']['tx_jhedamextender_path'];
-            $items[]=$this->makeListItem($arrFolderPath);
+			if($lowlevel_selection){
+				if($path){
+					$arrFolderPath[] = $path . ' :: ' . $lowlevel_selection;
+				} else {
+					$arrFolderPath[] = $lowlevel_selection;
+				}
+			} else {
+				if($path){
+					$arrFolderPath[] = $path;
+				} else {
+					$arrFolderPath[] = '';
+				}
+			}
+//t3lib_div::debug($arrFolderPath);
+			$items[]=$this->makeListItem($arrFolderPath);
+		}
+
+		//Generate Header for each section
+		$out .= '<table width="100%" border="0" cellspacing="2" cellpadding="2">
+			<tr>
+				<!--<th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>-->
+				<th class="listrowTitle" scope="col" colspan="4">' . $util->translate('dokument') . '</th>
+				<!--<th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>-->
+			</tr>
+			' . implode(chr(10), $items) . '
+		</table>
+		';
+
+		return $out;
 	}
 
-        //Generate Header for each section
-        $out .= '<table width="100%" border="0" cellspacing="2" cellpadding="2">
-                <tr>
-                    <!--<th class="listrowNo" scope="col">' . $util->translate('nummer') . '</th>-->
-                    <th class="listrowTitle" scope="col" colspan="4">' . $util->translate('dokument') . '</th>
-                    <!--<th class="listrowImage" scope="col">' . $util->translate('vorschau') . '</th>-->
-                </tr>
-                ' . implode(chr(10), $items) . '
-             </table>
-             ';
+	/**
+	 * Implodes a single row from a database to a single line
+	 *
+	 * @return	Imploded		column values
+	 */
+	function makeListItem($arrFolderPath)	{
+		$util = new util();
+		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+		$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
 
- 	return $out;
-    }
+		if(in_array($this->getFieldContent('file_type'), $workingTypes)) {
+			$imgPath = $this->getFieldContent('file_path') . $this->getFieldContent('file_name');
 
-    /**
-    * Implodes a single row from a database to a single line
-    *
-    * @return	Imploded		column values
-    */
-    function makeListItem($arrFolderPath)	{
-        $util = new util();
-        $this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-	$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
+			$imgData = getimagesize($imgPath);
+			$imgWidth = $imgData[0];
+			$imgHeight = $imgData[1];
 
-        if(in_array($this->getFieldContent('file_type'), $workingTypes)) {
-            $imgPath = $this->getFieldContent('file_path') . $this->getFieldContent('file_name');
+			$scape = '';
+			if($imgWidth == $imgHeight){
+				$scape = 'square';
+			} else if ($imgWidth > $imgHeight) {
+				$scape = 'landscape';
+			} else if ($imgWidth < $imgHeight) {
+				$scape = 'portrait';
+			}
 
-            $imgData = getimagesize($imgPath);
-            $imgWidth = $imgData[0];
-            $imgHeight = $imgData[1];
+			$thumbImgWidth = $this->extconf['thumbImageWidth'];
 
-            $scape = '';
-            if($imgWidth == $imgHeight){
-                $scape = 'square';
-            } else if ($imgWidth > $imgHeight) {
-                $scape = 'landscape';
-            } else if ($imgWidth < $imgHeight) {
-                $scape = 'portrait';
-            }
+			switch($scape) {
+				case 'square':
+					$imgWidthCalc = $thumbImgWidth;
+					break;
+				case 'landscape':
+					$imgWidthCalc = $thumbImgWidth;
+					break;
+				case 'portrait':
+					$imgWidthCalc = intval($thumbImgWidth * ($imgWidth / $imgHeight));
+					break;
+			}
 
-            $thumbImgWidth = $this->extconf['thumbImageWidth'];
+			$original = array(
+				'file' => $imgPath,
+			);
+			$originalImg = $this->cObj->IMAGE($original);
+			$originalPicData = explode(' ', $originalImg);
+			$originalPic = substr($originalPicData[1], 5, -1);
 
-            switch($scape) {
-                case 'square':
-                    $imgWidthCalc = $thumbImgWidth;
-		break;
-		case 'landscape':
-                    $imgWidthCalc = $thumbImgWidth;
-		break;
-		case 'portrait':
-                    $imgWidthCalc = intval($thumbImgWidth * ($imgWidth / $imgHeight));
-		break;
-            }
+			$preview['file'] = $imgPath;
+			$preview['altText'] = $this->getFieldContent('title');
+			$preview['titleText'] = $this->getFieldContent('title');
+			$preview['imageLinkWrap'] = 1;
+			$preview['imageLinkWrap.']['enable'] = 1;
+			$preview['file.']['width'] = $imgWidthCalc;
 
-           $original = array(
-                'file' => $imgPath,
-            );
-            $originalImg = $this->cObj->IMAGE($original);
-            $originalPicData = explode(' ', $originalImg);
-            $originalPic = substr($originalPicData[1], 5, -1);
+			if(t3lib_extMgm::isLoaded('pmkshadowbox')) {  // use Lightbox
+				$preview['imageLinkWrap.']['typolink.']['title']      = $this->getFieldContent('title');
+				$preview['imageLinkWrap.']['typolink.']['parameter']  = $originalPic;
+				$preview['imageLinkWrap.']['typolink.']['ATagParams'] = ' rel="shadowbox" target="_blank"';
+			} else { // use simple 'on Click enlarge' mechanism
+				$preview['imageLinkWrap.']['title'] = $this->getFieldContent('title');
+				$preview['imageLinkWrap.']['bodyTag'] = '<body>';
+				$preview['imageLinkWrap.']['wrap'] ='<a href="javascript:close();"> | </a>';
+				$preview['imageLinkWrap.']['JSwindow'] = 1;
+				if ($preview['imageLinkWrap.']['JSwindow.']['expand'] == '') {
+					$preview['imageLinkWrap.']['JSwindow.']['expand'] = '5,5';
+				}
+				$preview['imageLinkWrap.']['JSwindow.']['newWindow'] = 1;
+			}
 
-            $preview['file'] = $imgPath;
-            $preview['altText'] = $this->getFieldContent('title');
-            $preview['titleText'] = $this->getFieldContent('title');
-            $preview['imageLinkWrap'] = 1;
-            $preview['imageLinkWrap.']['enable'] = 1;
-            $preview['file.']['width'] = $imgWidthCalc;
+			$previewImg = $this->cObj->IMAGE($preview);
+		} else {
+			$preview = array(
+				'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
+				'file.' => array(
+					'width' => '50'
+				),
+				'altText' => $util->translate('nothumbavailable')
+			);
+			$previewImg = $this->cObj->IMAGE($preview);
+		}
 
-            if(t3lib_extMgm::isLoaded('pmkshadowbox')) {  // use Lightbox
-                $preview['imageLinkWrap.']['typolink.']['title']      = $this->getFieldContent('title');
-                $preview['imageLinkWrap.']['typolink.']['parameter']  = $originalPic;
-                $preview['imageLinkWrap.']['typolink.']['ATagParams'] = ' rel="shadowbox" target="_blank"';
-            } else { // use simple 'on Click enlarge' mechanism
-                $preview['imageLinkWrap.']['title'] = $this->getFieldContent('title');
-                $preview['imageLinkWrap.']['bodyTag'] = '<body>';
-                $preview['imageLinkWrap.']['wrap'] ='<a href="javascript:close();"> | </a>';
-                $preview['imageLinkWrap.']['JSwindow'] = 1;
-                if ($preview['imageLinkWrap.']['JSwindow.']['expand'] == '') {
-                    $preview['imageLinkWrap.']['JSwindow.']['expand'] = '5,5';
-                }
-                $preview['imageLinkWrap.']['JSwindow.']['newWindow'] = 1;
-            }
+		$typeIcon = array(
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/icons/' . $this->getFieldContent('file_type') . '.gif'
+		);
 
-            $previewImg = $this->cObj->IMAGE($preview);
-	} else {
-            $preview = array(
-                'file' => 'typo3conf/ext/jhe_dam_extender/res/img/dummy250x250.gif',
-		'file.' => array(
-                    'width' => '50'
-		),
-		'altText' => $util->translate('nothumbavailable')
-            );
-            $previewImg = $this->cObj->IMAGE($preview);
+		$downloadIcon = array(
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
+			'altText' => $util->translate('startdownload')
+		);
+
+		//get creation date
+		if($this->getFieldContent('date_cr')+$util->daysToSeconds($this->extconf['newPeriod']) > time()) {
+			//get new icon
+			$newIcon = array(
+				'file' => 'fileadmin/templates/img/new2.png',
+				'altText' => '' . $util->translate('isnew') . ''
+			);
+		} else {
+			$newIcon = '';
+		}
+
+		$countedValues = array_count_values($arrFolderPath);
+
+		$path = $this->getFieldContent('tx_jhedamextender_path');
+		$lowlevel_selection = $this->getFieldContent('tx_jhedamextender_lowlevel_selection');
+
+		if($lowlevel_selection){
+			if($path){
+				$folderPath = $path . ' :: ' . $lowlevel_selection;
+			} else {
+				$folderPath = $lowlevel_selection;
+			}
+		} else {
+			if($path){
+				$folderPath = $path;
+			} else {
+				$folderPath = '';
+			}
+		}
+
+		if($countedValues['' . $folderPath . ''] == 1){
+			$folder = '
+				<tr>
+					<td class="listrowPath" colspan="6"><strong>' . $folderPath . '</strong></td>
+				</tr>';
+		}
+
+		$content .= '
+			' . $folder . '
+				<tr class="tr_upper">
+					<td class="listrowTitle" colspan="3"><strong>' . $this->getFieldContent('title') . '</strong><br /><small style="color: #f55b0a;">' . $this->mapFileTypeFromPath($this->getFieldContent('file_path')) . '</small></td>
+					<td class="listrowNew">' .$this->cObj->IMAGE($newIcon) . '</td>
+				</tr>
+				<tr class="tr_lower">
+					<td class="listrowType">' . $this->cObj->IMAGE($typeIcon) . '</td>
+					<td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</td>
+					<td class="listrowSize">' . $this->getFieldContent('file_size') . ' Byte</td>
+					<td class="listrowLink"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
+				</tr>
+			';
+
+		return $content;
 	}
-
-        $typeIcon = array(
-            'file' => 'typo3conf/ext/jhe_dam_extender/res/img/icons/' . $this->getFieldContent('file_type') . '.gif'
-	);
-
-	$downloadIcon = array(
-            'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
-            'altText' => $util->translate('startdownload')
-	);
-
-        //get creation date
-	if($this->getFieldContent('date_cr')+$util->daysToSeconds($this->extconf['newPeriod']) > time()) {
-            //get new icon
-            $newIcon = array(
-                'file' => 'fileadmin/templates/img/new2.png',
-		'altText' => '' . $util->translate('isnew') . ''
-            );
-	} else {
-            $newIcon = '';
-	}
-
-        $countedValues = array_count_values($arrFolderPath);
-        if($countedValues[''.$this->getFieldContent('tx_jhedamextender_path').''] == 1){
-                    $folder = '
-                <tr>
-                    <td class="listrowPath" colspan="6"><strong>' . $this->getFieldContent('tx_jhedamextender_path') . '</strong></td>
-                </tr>';
-        }
-
-        $sorter = $this->getFieldContent('tx_jhedamextender_order');
-        if(!$sorter){
-            $sorter = '-';
-        }
-
-	$content .= '
-                ' . $folder . '
-                <tr class="tr_upper">
-                    <!--<td class="listrowNo">' . $sorter . '</td>-->
-                    <td class="listrowTitle" colspan="3"><strong>' . $this->getFieldContent('title') . '</strong><br /><small style="color: #f55b0a;">' . $this->mapFileTypeFromPath($this->getFieldContent('file_path')) . '</small></td>
-                    <td class="listrowNew">' .$this->cObj->IMAGE($newIcon) . '</td>
-                    <!--<td class="listrowImage" rowspan="2">' . $previewImg . '</td>-->
-                </tr>
-                <tr class="tr_lower">
-                    <!--<td></td>-->
-                    <td class="listrowType">' . $this->cObj->IMAGE($typeIcon) . '</td>
-                    <td class="listrowDate">' . date('d.m.Y', $this->getFieldContent('date_mod')) . '</td>
-                    <td class="listrowSize">' . $this->getFieldContent('file_size') . ' Byte</td>
-                    <td class="listrowLink"><a href="' . $this->getFieldContent('file_path') . $this->getFieldContent('file_name') . '" title="' . $this->getFieldContent('title') . '" target="_blank">' . $this->cObj->IMAGE($downloadIcon) . '</a></td>
-                </tr>
-            ';
-
-	return $content;
-    }
 
     function mapFileTypeFromPath($path) {
 
