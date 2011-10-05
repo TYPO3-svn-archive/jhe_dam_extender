@@ -216,7 +216,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
             'uid=' . $this->conf['selectedCategory']
         );
         $catTitle = $util->catToString(implode($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)));
-
+//t3lib_div::debug($catTitle);
         if(count($filesInLinkFolder)) {
             foreach($filesInLinkFolder as $file){
                 $fileType = substr($file, -3, 3);
@@ -224,6 +224,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
                     $fileNameBegin = substr($file, 0, 6);
                     if($fileNameBegin == 'links_'){
                         $fileCatPart = substr($file, 6, -4);
+				    //t3lib_div::debug($fileCatPart);
                         if($fileCatPart == $catTitle){
                             $countLinkFiles = 1;
                         }
@@ -231,7 +232,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
                 }
             }
         }
-
+//t3lib_div::debug($countLinkFiles);
         return $countLinkFiles;
     }
 
@@ -260,14 +261,30 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
         foreach($this->conf['directories'] as $dir){
             $noOfFiles = $this->getNumberOfFilesPerDirectoryAndCategory($dir,$this->conf['selectedCategory']);
             $countLinkFiles = $this->checkForTxtFilesInLinkFolder();
-                    
-            if($noOfFiles) {
-                if($dir == $linkFolder && $countLinkFiles == 0){
-                    $docType .= '';
-                } else {
-                    $docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
-                }
-            }
+
+		  t3lib_div::debug($dir . '  ' . $noOfFiles);                   
+            
+		  if($dir == $linkFolder){
+			  if($countLinkFiles == 1){
+				  $docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
+			  }
+		  } else {
+			  if($noOfFiles > 0){
+				  $docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
+			  }
+		  }
+		  
+		  
+		  
+		  
+		  
+		  //if($noOfFiles) {
+            //    if($dir == $linkFolder && $countLinkFiles == 0){
+            //        $docType .= '';
+            //    } else {
+            //        $docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
+            //    }
+            //}
         }
 
 	$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
