@@ -1,3 +1,7 @@
+2011-08-06 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.1.4
+
+	*pi4: deleted the debugging output from yesterday
+
 2011-08-05 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.1.3
 
 	*pi4: debugging of reported bug for displaying link button in case 
