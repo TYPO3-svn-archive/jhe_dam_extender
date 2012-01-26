@@ -189,3 +189,100 @@
     color: #f55b0a;
     text-align: center;
 }
+
+
+
+
+
+#docsByType h4 {
+	width: 410px;
+	text-align: left;
+	background-color: #217a2c;
+	color: #fff;
+	padding: 5px !important;
+	font-weight: bold;
+	margin: 10px 0 5px 0;
+}
+
+#docsByType ul {
+	width: 420px;
+}
+#docsByType ul li {
+	background-color: transparent;
+	width: 410px;
+	color: #404040;
+	border-bottom: 1px solid #217a2c;
+	cursor: default;
+}
+
+#docsByType ul li .specialTopicAjaxListNewIcon {
+	width: 29px;
+	margin: 0;
+	padding: 0;
+	float:left;
+}
+
+#docsByType ul li .specialTopicAjaxListTitle {
+	margin-left: 35px;
+	margin-right: 30px;
+}
+
+#docsByType ul li .specialTopicAjaxListTitle a {
+	background: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#docsByType ul li .specialTopicAjaxListDetails {
+	margin-left: 35px;
+	margin-right: 30px;
+	margin-bottom: 3px;
+	font-weight: normal;
+	font-size: 10px;
+	line-height: 11px;
+}
+
+#docsByType ul li .specialTopicAjaxListDetails .specialTopicAjaxListDetailsType {
+	margin-right: 10px;
+}
+
+#docsByType ul li .specialTopicAjaxListDetails .specialTopicAjaxListDetailsDate {
+	margin-right: 10px;
+}
+
+#docsByType ul li .specialTopicAjaxListDetails .specialTopicAjaxListDetailsSize {
+
+}
+
+#docsByType ul li .specialTopicAjaxListDownload {
+	float: right;
+}
+
+#docsByType ul li .specialTopicAjaxListDownload a {
+	background: 0;
+	margin: 0;
+	padding: 0;
+}
+
+
+
+
+
+
+
+#docsByType .page_navigation {
+	margin: 5px 0;
+	padding: 3px 0;
+	text-align: center;
+}
+
+#docsByType .page_navigation .first_link { margin: 0 4px 0 0; padding: 2px 5px; background-color: #f55b0a; color: #fff;text-decoration: none;}
+#docsByType .page_navigation .previous_link {margin: 0 4px; padding: 2px 5px; background-color: #f55b0a; color: #fff;text-decoration: none;}
+#docsByType .page_navigation .page_link {margin: 0 4px; padding: 2px 5px; background-color: #f55b0a; color: #fff;text-decoration: none;}
+#docsByType .page_navigation .next_link {margin: 0 4px; padding: 2px 5px; background-color: #f55b0a; color: #fff;text-decoration: none;}
+#docsByType .page_navigation .last_link {margin: 0 0 0 4px; padding: 2px 5px; background-color: #f55b0a; color: #fff;text-decoration: none;}
+#docsByType .page_navigation .active_page { background-color: #f88447; cursor: default;text-decoration: none;}
+#docsByType .page_navigation .no_more {display: none !important;}
+#docsByType .page_navigation .ellipse {display: none !important;}
+#docsByType .page_navigation .less {display: none !important;}
+#docsByType .page_navigation .more {display: none !important;}

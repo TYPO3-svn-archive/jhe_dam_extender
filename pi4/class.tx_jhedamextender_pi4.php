@@ -235,111 +235,127 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
         return $countLinkFiles;
     }
 
-    /**
-    * Creates an list of all documents types in which data for a given category is stored
-    *
-    * @param	object		$conf: configuration data
-    * @return	string		html output
-    */
-    function createNavPerDocumenttypes($conf){
-        $this->conf = $conf;
-        $linkFolder = $this->extconf['linkFolder'];
-        $util = new util();
+	/**
+	* Creates an list of all documents types in which data for a given category is stored
+	*
+	* @param	object		$conf: configuration data
+	* @return	string		html output
+	*/
+	function createNavPerDocumenttypes($conf){
+		$this->conf = $conf;
+		$linkFolder = $this->extconf['linkFolder'];
+		$util = new util();
 
-        $dirsFromFileSystem = $this->getFolderNamesFromFilesystem($this->conf['mainFolder']);
-        $specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf);
-	$this->conf['directories'] = array_diff($dirsFromFileSystem, $specialUsageItemDirs);
+		$dirsFromFileSystem = $this->getFolderNamesFromFilesystem($this->conf['mainFolder']);
+		$specialUsageItemDirs = $this->getSpecialUsageItemDirs($this->conf);
+		$this->conf['directories'] = array_diff($dirsFromFileSystem, $specialUsageItemDirs);
 
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'title',
-            'tx_dam_cat',
-            'uid=' . $this->conf['selectedCategory']
-	);
-	list($catTitle) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'title',
+			'tx_dam_cat',
+			'uid=' . $this->conf['selectedCategory']
+		);
+		list($catTitle) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 
-        foreach($this->conf['directories'] as $dir){
-            $noOfFiles = $this->getNumberOfFilesPerDirectoryAndCategory($dir,$this->conf['selectedCategory']);
-            $countLinkFiles = $this->checkForTxtFilesInLinkFolder();
+		foreach($this->conf['directories'] as $dir){
+			$noOfFiles = $this->getNumberOfFilesPerDirectoryAndCategory($dir,$this->conf['selectedCategory']);
+			$countLinkFiles = $this->checkForTxtFilesInLinkFolder();
 
-		  if($dir == $linkFolder){
-			  if($countLinkFiles == 1){
-				  $docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
-			  }
-		  } else {
-			  if($noOfFiles > 0){
-				  $docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
-			  }
-		  }
-        }
+			if($dir == $linkFolder){
+				if($countLinkFiles == 1){
+					$docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
+				}
+			} else {
+				if($noOfFiles > 0){
+					$docType .= '<li'. $this->pi_classParam('navDokType'). ' id="' . strtolower($dir) . '">' . $util->translate($dir) . '</li>';
+				}
+			}
+		}
 
-	$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
-            <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-            <script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.easing-1.3.pack.js"></script>
-            <script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.fancybox-1.3.1.pack.js"></script>
-            <link rel="stylesheet" href="typo3conf/ext/jq_fancybox/fancybox/css/jquery.fancybox.css" type="text/css">
+		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
+			<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.easing-1.3.pack.js"></script>
+			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.fancybox-1.3.1.pack.js"></script>
+			<script type="text/javascript" src="typo3conf/ext/jhe_dam_extender/res/js/jquery.pajinate.js"></script>
+			<link rel="stylesheet" href="typo3conf/ext/jq_fancybox/fancybox/css/jquery.fancybox.css" type="text/css">
 
             <script type="text/javascript">
-
                 $(document).ready(function() {
 
-                    // AJAX Request per eID
-                    $(".tx-jhedamextender-pi4-navDokType").bind("click", function() {
-                        $("#docsByType").hide();
-			$("#doctype_ajaxloader").show();
-			$.ajax({
-                            url: "?eID=getDocumentsByDirectoryAndCategory",
-                            data: "&docType=" + this.id + "&catId=' . $this->conf['selectedCategory'] . '",
-                            success: function(result) {
-                                $("#doctype_ajaxloader").hide();
-				$("#docsByType").show();
-				$("#docsByType").html("" + result + "")
-                            }
-			});
-                    });
+					var maxitems = 25;
+					
+					//AJAX Request per eID
+					$(".tx-jhedamextender-pi4-navDokType").bind("click", function() {
+						$("#docsByType").hide();
+						$("#doctype_ajaxloader").show();
+						$.ajax({
+							url: "?eID=getDocumentsByDirectoryAndCategory",
+							data: "&docType=" + this.id + "&catId=' . $this->conf['selectedCategory'] . '",
+							dataType: "json",
+							success: function(result) {
+								$("#doctype_ajaxloader").hide();
+								$("#docsByType").show();
+								$("#docsByType").html("" + result.content + "");
+								
+								if(maxitems < result.counter){
+									$("#docsByType").append("<div class=\"page_navigation\"></div>");
+									
+									$("#docsByType").pajinate({
+										items_per_page : maxitems,
+										nav_panel_id: \'.page_navigation\',
+										nav_label_first: \'Anfang\',
+										nav_label_last: \'Ende\',
+										nav_label_prev: \'<<\',
+										nav_label_next: \'>>\',
+										show_first_last: false
+									});
+								}
+							}
+						});
+					});
 
-                    $("img.jqfancybox").live("click", function(){
-                        alert(this.id);
-                        $.ajax({
-                            url: "?eID=fancybox",
-                            data: "&docId=" + this.id + "",
-                            success: function(result){
-                                alert(result);
-                                result.fancybox({
-                                    "padding": 0,
-                                    "speedIn": 300,
-                                    "speedOut": 300,
-                                    "changeSpeed": 300,
-                                    "transitionIn": "elastic",
-                                    "transitionOut": "elastic",
-                                    "titlePosition": "over",
-                                    "titleShow": true,
-                                    "easingIn": "swing",
-                                    "easingOut": "swing",
-                                    "showCloseButton": true,
-                                    "showNavArrows": true,
-                                    "enableEscapeButton": true,
-                                    "overlayShow": true,
-                                    "overlayOpacity": 0.4,
-                                    "overlayColor": "#666",
-                                    "centerOnScroll": false,
-                                    "hideOnContentClick": false
-                                });
-                            }
-                        });
-                    });
+					$("img.jqfancybox").live("click", function(){
+						alert(this.id);
+						$.ajax({
+							url: "?eID=fancybox",
+							data: "&docId=" + this.id + "",
+							success: function(result){
+								alert(result);
+								result.fancybox({
+									"padding": 0,
+									"speedIn": 300,
+									"speedOut": 300,
+									"changeSpeed": 300,
+									"transitionIn": "elastic",
+									"transitionOut": "elastic",
+									"titlePosition": "over",
+									"titleShow": true,
+									"easingIn": "swing",
+									"easingOut": "swing",
+									"showCloseButton": true,
+									"showNavArrows": true,
+									"enableEscapeButton": true,
+									"overlayShow": true,
+									"overlayOpacity": 0.4,
+									"overlayColor": "#666",
+									"centerOnScroll": false,
+									"hideOnContentClick": false
+								});
+							}
+						});
+					});
+				});
+			</script>
+		';
 
-                });
-            </script>
-	';
+		if(!$docType) {
+			$content = '<h3>' . $util->translate('headerdoctypes') . ' ' . $catTitle . '</h3><div>' . $util->translate('err_no_doctypes'). '</div>';
+		} else {
+			$content = '<h3>' . $util->translate('headerdoctypes') . ' ' . $catTitle . '</h3><div><ul>'. $docType . '</ul></div>';
+		}
 
-	if(!$docType) {
-            $content = '<h3>' . $util->translate('headerdoctypes') . ' ' . $catTitle . '</h3><div>' . $util->translate('err_no_doctypes'). '</div>';
-	} else {
-            $content = '<h3>' . $util->translate('headerdoctypes') . ' ' . $catTitle . '</h3><div><ul>'. $docType . '</ul></div>';
+		return $content;
 	}
-
-	return $content;
-    }
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi4/class.tx_jhedamextender_pi4.php'])	{

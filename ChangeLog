@@ -1,3 +1,11 @@
+2012-01-26 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.0
+
+	*pi4: changed ajax call to dataType json, general code refactoring
+	*ajax: changed the complete output from table to ul/div
+	*ajax: included the pajinate script for displaying long lists of 
+		   documents, neccessary css changes
+	*general: changed state to stable
+
 2011-08-06 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.1.4
 
 	*pi4: deleted the debugging output from yesterday
