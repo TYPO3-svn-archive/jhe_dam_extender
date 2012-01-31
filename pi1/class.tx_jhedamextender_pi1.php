@@ -294,7 +294,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		);
 
 		$downloadIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/downloadNew.gif',
 			'altText' => $util->translate('startdownload')
 		);
 
