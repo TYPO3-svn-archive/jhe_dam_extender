@@ -70,7 +70,7 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
             $this->conf['mainFolder'] =$this->extconf['mainFolder'];
 
             //integration of an main css file for styling the html output
-            $css = '<link rel="stylesheet" type="text/css" href="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/css/main.css" />';
+            $css = '<link rel="stylesheet" type="text/css" href="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/css/main.css?' . time() .'" />';
             $GLOBALS['TSFE']->additionalHeaderData[$this->extKey . '_css'] = $css;
 
             //clear html output
@@ -273,11 +273,11 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 		}
 
 		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
-			<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.easing-1.3.pack.js"></script>
-			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.fancybox-1.3.1.pack.js"></script>
-			<script type="text/javascript" src="typo3conf/ext/jhe_dam_extender/res/js/jquery.pajinate.js"></script>
-			<link rel="stylesheet" href="typo3conf/ext/jq_fancybox/fancybox/css/jquery.fancybox.css" type="text/css">
+			<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?' . time() .'"></script>
+			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.easing-1.3.pack.js?' . time() .'"></script>
+			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.fancybox-1.3.1.pack.js?' . time() .'"></script>
+			<script type="text/javascript" src="typo3conf/ext/jhe_dam_extender/res/js/jquery.pajinate.js?' . time() .'"></script>
+			<link rel="stylesheet" href="typo3conf/ext/jq_fancybox/fancybox/css/jquery.fancybox.css?' . time() .'" type="text/css">
 
             <script type="text/javascript">
                 $(document).ready(function() {
@@ -307,7 +307,8 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 										nav_label_last: \'Ende\',
 										nav_label_prev: \'<<\',
 										nav_label_next: \'>>\',
-										show_first_last: false
+										show_first_last: true,
+										num_page_links_to_display: \'7\'
 									});
 								}
 							}

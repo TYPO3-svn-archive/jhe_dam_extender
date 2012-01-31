@@ -1,3 +1,8 @@
+2012-01-30 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.1
+
+	*pi4:  changed settings for pajinate for really loooooong lists of 
+		   documents
+
 2012-01-26 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.0
 
 	*pi4: changed ajax call to dataType json, general code refactoring
