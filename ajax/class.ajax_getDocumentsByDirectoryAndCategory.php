@@ -217,8 +217,9 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
 		//get download icon
 		$downloadIcon = array(
-			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/download.gif',
-			'altText' => '' . $util->translate('downloadlink') . ''
+			'file' => 'typo3conf/ext/jhe_dam_extender/res/img/downloadNew.gif',
+			'altText' => '' . $util->translate('downloadlink') . '',
+			'wrap' => '<strong>|</strong>'
 		);
 
 		//Convert filesize to kb
