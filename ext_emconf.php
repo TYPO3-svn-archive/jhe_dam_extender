@@ -11,7 +11,7 @@
 ########################################################################
 
 $EM_CONF[$_EXTKEY] = array(
-	'title' => 'DAM Extender',
+	'title' => 'B·A·D DAM Extender',
 	'description' => 'Provides a new editable select field to any DAM media file that gives the opportunity to select a flag for special usage of that file apart from the categorization issue.',
 	'category' => 'plugin',
 	'author' => 'Jari-Hermann Ernst',
