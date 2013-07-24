@@ -42,7 +42,7 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 		tslib_eidtools::connectDB();
 		$feUserObject = tslib_eidtools::initFeUser();
 
-$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+//$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
 
 		//retrieving GET data
 		$mediaFolder = t3lib_div::_GET('mediaFolder');

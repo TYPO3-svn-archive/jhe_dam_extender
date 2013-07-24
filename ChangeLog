@@ -1,3 +1,13 @@
+2013-07-24 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.3
+
+	*ajax: deactivated some unused debugging functions
+	*pi1:  added the functions to check if ext t3jquery is included 
+		   otherwise chose an updated jquery library from res
+	*pi1:  little change in jquery , hides button is download button 
+		   is clicked
+	*pi4:  added the functions to check if ext t3jquery is included 
+		   otherwise chose an updated jquery library from res
+
 2012-01-31 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.2
 
 	*pi1:  debugging of bug not showing the renamed download icon

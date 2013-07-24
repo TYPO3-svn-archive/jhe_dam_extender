@@ -384,12 +384,15 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         $this->conf = $conf;
 	   $util = new util();
 
+	   $this->addJqueryLibrary();
+	   
         $GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
-            <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+            
             <script type="text/javascript">
                 $(document).ready(function() {
                     // AJAX Request per eID
                     $(".dlButton").bind("click", function() {
+					$(".dlButton").hide();
                     $("#dl_ajaxloader").show();
                     $.ajax({
                         url: "?eID=downloadSpecialUsage",
@@ -398,6 +401,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
                             '&selectCategory=' . $this->conf['selectedCategory'] .
                             '&specialUsage=' . $this->conf['specialUsage'] . '",
 			success: function(result) {
+							$(".dlButton").show();
                             $("#dl_ajaxloader").hide();
                             $("<form action=\'"+result+"\' method=\'post\'></form>").appendTo("body").submit().remove();
 			}
@@ -548,6 +552,21 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
         return $array;
 
     }
+	
+	function addJqueryLibrary(){
+		// checks if t3jquery is loaded
+		if (t3lib_extMgm::isLoaded('t3jquery')) {
+			require_once(t3lib_extMgm::extPath('t3jquery').'class.tx_t3jquery.php');
+		}
+		// if t3jquery is loaded and the custom Library had been created
+		if (T3JQUERY === true) {
+			tx_t3jquery::addJqJS();
+		} else {
+			//if none of the previous is true, you need to include your own library
+			//just as an example in this way
+			$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] .= '<script language="JavaScript" src="' . t3lib_extMgm::extRelPath($this->extKey) . 'res/js/jquery-1.9.1.min.js"></script>';
+		}
+	}
 	
 }
 

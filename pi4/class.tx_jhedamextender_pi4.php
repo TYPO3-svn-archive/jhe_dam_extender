@@ -272,8 +272,9 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 			}
 		}
 
+		$this->addJqueryLibrary();
+		
 		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
-			<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js?' . time() .'"></script>
 			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.easing-1.3.pack.js?' . time() .'"></script>
 			<script type="text/javascript" src="typo3conf/ext/jq_fancybox/fancybox/js/jquery.fancybox-1.3.1.pack.js?' . time() .'"></script>
 			<script type="text/javascript" src="typo3conf/ext/jhe_dam_extender/res/js/jquery.pajinate.js?' . time() .'"></script>
@@ -357,6 +358,22 @@ class tx_jhedamextender_pi4 extends tslib_pibase {
 
 		return $content;
 	}
+	
+	function addJqueryLibrary(){
+		// checks if t3jquery is loaded
+		if (t3lib_extMgm::isLoaded('t3jquery')) {
+			require_once(t3lib_extMgm::extPath('t3jquery').'class.tx_t3jquery.php');
+		}
+		// if t3jquery is loaded and the custom Library had been created
+		if (T3JQUERY === true) {
+			tx_t3jquery::addJqJS();
+		} else {
+			//if none of the previous is true, you need to include your own library
+			//just as an example in this way
+			$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] .= '<script language="JavaScript" src="' . t3lib_extMgm::extRelPath($this->extKey) . 'res/js/jquery-1.9.1.min.js"></script>';
+		}
+	}
+	
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi4/class.tx_jhedamextender_pi4.php'])	{
