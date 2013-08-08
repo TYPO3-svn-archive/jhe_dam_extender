@@ -1,3 +1,7 @@
+2013-08-08 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.4
+	
+	*general: deleted dependency for ext jq_fancybox	  
+
 2013-07-24 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.3
 
 	*ajax: deactivated some unused debugging functions
