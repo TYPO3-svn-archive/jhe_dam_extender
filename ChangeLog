@@ -1,3 +1,9 @@
+2013-08-20 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.3.0
+
+	*general: added pi5 for listing files by document type
+	*general: document type can be choosen for every file
+	*general: document types are flexibly editable
+
 2013-08-08 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.2.4
 	
 	*general: deleted dependency for ext jq_fancybox	  

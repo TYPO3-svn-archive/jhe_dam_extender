@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<T3DataStructure>
+	<meta>
+		<langDisable>1</langDisable>
+	</meta>
+	<ROOT>
+		<type>array</type>
+		<el>
+			<mediaFolder>
+				<TCEforms>
+					<label>Auswahl Medien-Ordner</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>pages</allowed>
+						<minitems>1</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</mediaFolder>
+			<doctypeSelector>
+				<TCEforms>
+					<label>Dokumententyp</label>
+					<config>
+						<type>select</type>
+						<items type="array">
+							<numIndex index="0" type="array">
+								<numIndex index="0">Dokumententyp auswählen...</numIndex>
+								<numIndex index="1"></numIndex>
+							</numIndex>
+						</items>
+						<foreign_table>tx_jhedamextender_doctype</foreign_table>
+						<foreign_table_where>
+							AND tx_jhedamextender_doctype.deleted = 0 AND tx_jhedamextender_doctype.hidden = 0
+						</foreign_table_where>
+					</config>
+				</TCEforms>
+			</doctypeSelector>
+		</el>
+	</ROOT>
+</T3DataStructure>

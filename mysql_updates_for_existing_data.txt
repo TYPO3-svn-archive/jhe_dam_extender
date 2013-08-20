@@ -1,0 +1,19 @@
+UPDATE tx_dam SET tx_jhedamextender_doctype = 1 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Betriebsanweisungen/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 2 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Broschueren/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 3 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Flyer/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 4 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Formblaetter/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 5 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Links/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 6 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Plakate/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 7 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Praesentationen/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 8 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Produktblaetter/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 10 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Produktinformationen/'
+
+UPDATE tx_dam SET tx_jhedamextender_doctype = 9 WHERE file_path = 'fileadmin/SHARED/Fachthemen/Produktmappe/'

@@ -82,12 +82,60 @@ $tempColumns = array (
             'default' => 0
         )
     ),
+	'tx_jhedamextender_doctype' => array (		
+		'exclude' => 1,		
+		'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_dam.tx_jhedamextender_doctype',
+		'config' => array (
+			'type' => 'select',	
+			'foreign_table' => 'tx_jhedamextender_doctype',	
+			'foreign_table_where' => 'AND tx_jhedamextender_doctype.pid=###CURRENT_PID### ORDER BY tx_jhedamextender_doctype.uid',
+			'items' => array(
+				array('Dokumententyp auswählen...', '')
+			),
+            'size' => 1,
+			'minitems' => 0,
+            'maxitems' => 1,
+			'wizards' => array(
+				'_PADDING'  =>  2,
+				'_VERTICAL' => 0,
+				'add' => array(
+					'type'   => 'script',
+					'title'  => 'Neuen Dokumententyp anlegen',
+					'icon'   => 'add.gif',
+					'params' => array(
+						'table'    => 'tx_jhedamextender_doctype',
+						'pid'      => '###CURRENT_PID###',
+						'setValue' => 'prepend'
+					),
+					'script' => 'wizard_add.php',
+				),
+				'list' => array(
+					'type'   => 'script',
+					'title'  => 'Dokumententypen auflisten',
+					'icon'   => 'list.gif',
+					'params' => array(
+						'table' => 'tx_jhedamextender_doctype',
+						'pid'   => '###CURRENT_PID###',
+					),
+					'script' => 'wizard_list.php',
+				),
+				'edit' => array(
+					'type'                     => 'popup',
+					'title'                    => 'Dokumententyp bearbeiten',
+					'script'                   => 'wizard_edit.php',
+					'popup_onlyOpenIfSelected' => 1,
+					'icon'                     => 'edit2.gif',
+					'JSopenParams'             => 'height=350,width=580,status=0,menubar=0,scrollbars=1',
+				),
+			),
+		)
+	),
 );
 
 
 t3lib_div::loadTCA('tx_dam');
 t3lib_extMgm::addTCAcolumns('tx_dam',$tempColumns,1);
-t3lib_extMgm::addToAllTCAtypes('tx_dam','--div--;Fachthemen;;;;1-1-1, tx_jhedamextender_usage, tx_jhedamextender_path, tx_jhedamextender_lowlevel_selection, tx_jhedamextender_order');
+t3lib_extMgm::addToAllTCAtypes('tx_dam','--div--;Fachthemen;;;;1-1-1, tx_jhedamextender_doctype, tx_jhedamextender_usage, tx_jhedamextender_path, tx_jhedamextender_lowlevel_selection, tx_jhedamextender_order');
 
 $TCA['tx_jhedamextender_usage'] = array (
 	'ctrl' => array (
@@ -109,6 +157,27 @@ $TCA['tx_jhedamextender_usage'] = array (
 	),
 );
 
+
+t3lib_extMgm::allowTableOnStandardPages('tx_jhedamextender_doctype');
+
+$TCA['tx_jhedamextender_doctype'] = array (
+	'ctrl' => array (
+		'title'     => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_jhedamextender_doctype',		
+		'label'     => 'name',	
+		'tstamp'    => 'tstamp',
+		'crdate'    => 'crdate',
+		'cruser_id' => 'cruser_id',
+		'versioningWS' => TRUE, 
+		'origUid' => 't3_origuid',
+		'sortby' => 'sorting',	
+		'delete' => 'deleted',	
+		'enablecolumns' => array (		
+			'disabled' => 'hidden',
+		),
+		'dynamicConfigFile' => t3lib_extMgm::extPath($_EXTKEY).'tca.php',
+		'iconfile'          => t3lib_extMgm::extRelPath($_EXTKEY).'icon_tx_jhedamextender_doctype.gif',
+	),
+);
 
 t3lib_div::loadTCA('tt_content');
 $TCA['tt_content']['types']['list']['subtypes_excludelist'][$_EXTKEY.'_pi1']='layout,select_key,pages';
@@ -177,6 +246,23 @@ t3lib_extMgm::addPlugin(array(
 
 if (TYPO3_MODE == 'BE') {
     $TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']['tx_jhedamextender_pi4_wizicon'] = t3lib_extMgm::extPath($_EXTKEY).'pi4/class.tx_jhedamextender_pi4_wizicon.php';
+}
+
+t3lib_div::loadTCA('tt_content');
+$TCA['tt_content']['types']['list']['subtypes_excludelist'][$_EXTKEY.'_pi5']='layout,select_key,pages';
+$TCA['tt_content']['types']['list']['subtypes_addlist'][$_EXTKEY.'_pi5']='pi_flexform';
+t3lib_extMgm::addPiFlexFormValue($_EXTKEY . '_pi5', 'FILE:EXT:' . $_EXTKEY . '/pi5/flexform_ds.xml');
+
+
+t3lib_extMgm::addPlugin(array(
+    'LLL:EXT:jhe_dam_extender/locallang_db.xml:tt_content.list_type_pi5',
+    $_EXTKEY . '_pi5',
+    t3lib_extMgm::extRelPath($_EXTKEY) . 'ext_icon.gif'
+),'list_type');
+
+
+if (TYPO3_MODE == 'BE') {
+    $TBE_MODULES_EXT['xMOD_db_new_content_el']['addElClasses']['tx_jhedamextender_pi5_wizicon'] = t3lib_extMgm::extPath($_EXTKEY).'pi5/class.tx_jhedamextender_pi5_wizicon.php';
 }
 
 t3lib_extMgm::addStaticFile($_EXTKEY,'static/dam_extender/', 'DAM Extender');

@@ -66,4 +66,57 @@ $TCA['tx_jhedamextender_usage'] = array (
 		'1' => array('showitem' => '')
 	)
 );
+
+$TCA['tx_jhedamextender_doctype'] = array (
+	'ctrl' => $TCA['tx_jhedamextender_doctype']['ctrl'],
+	'interface' => array (
+		'showRecordFieldList' => 'hidden,name,desciption'
+	),
+	'feInterface' => $TCA['tx_jhedamextender_doctype']['feInterface'],
+	'columns' => array (
+		't3ver_label' => array (		
+			'label'  => 'LLL:EXT:lang/locallang_general.xml:LGL.versionLabel',
+			'config' => array (
+				'type' => 'input',
+				'size' => '30',
+				'max'  => '30',
+			)
+		),
+		'hidden' => array (		
+			'exclude' => 1,
+			'label'   => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config'  => array (
+				'type'    => 'check',
+				'default' => '0'
+			)
+		),
+		'name' => array (		
+			'exclude' => 1,		
+			'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_jhedamextender_doctype.name',		
+			'config' => array (
+				'type' => 'input',	
+				'size' => '30',	
+				'eval' => 'required,trim',
+			)
+		),
+		'desciption' => array (		
+			'exclude' => 1,		
+			'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_jhedamextender_doctype.desciption',		
+			'config' => array (
+				'type' => 'text',
+				'cols' => '30',	
+				'rows' => '5',
+			)
+		),
+	),
+	'types' => array (
+		'0' => array('showitem' => 'hidden;;1;;1-1-1, name, desciption')
+	),
+	'palettes' => array (
+		'1' => array('showitem' => '')
+	)
+);
+
+
+
 ?>

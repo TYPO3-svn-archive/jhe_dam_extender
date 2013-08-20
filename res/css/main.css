@@ -116,14 +116,14 @@
     /*border: 1px solid green;*/
 }
 
-.tx-jhedamextender-pi4 ul {
+.tx-jhedamextender-pi4 ul, .tx-jhedamextender-pi5 ul {
     margin: 0;
     padding: 0;
     list-style-type: none;
     width: 380px;
 }
 
-.tx-jhedamextender-pi4 ul li {
+.tx-jhedamextender-pi4 ul li, .tx-jhedamextender-pi5 ul li {
     background-color: #217a2c;
     color: #fff;
     font-weight: bold;
