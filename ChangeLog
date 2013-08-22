@@ -1,3 +1,8 @@
+2013-08-22 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.3.2
+
+	*general: deleted reminder text with mysql update statement for 
+			  migration to live scope
+
 2013-08-22 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.3.1
 
 	*general: debugging of missing label for document type selector in 
