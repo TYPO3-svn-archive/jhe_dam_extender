@@ -28,19 +28,19 @@
 		<languageKey index="de" type="array">
 			<label index="tx_dam.tx_jhedamextender_usage">Verwendung für</label>
 			<label index="tx_jhedamextender_usage">Medienverwendung</label>
-			<label index="tx_dam.tx_jhedamextender_path">Pfad</label>
+			<label index="tx_dam.tx_jhedamextender_doctype">Dokumentenart</label>
+			<label index="tx_dam.tx_jhedamextender_path">Pfad für die Grobunterteilung der Produktmappe</label>
 			<label index="tx_dam.tx_jhedamextender_lowlevel_selection.I.1">Kunde</label>
 			<label index="tx_dam.tx_jhedamextender_lowlevel_selection.I.2">Vertrieb</label>
 			<label index="tx_dam.tx_jhedamextender_lowlevel_selection.I.3">Vertrieb und Zentrum</label>
-			<label index="tx_dam.tx_jhedamextender_lowlevel_selection">Dokumententyp</label>
-			<label index="tx_dam.tx_jhedamextender_order">Sortierung</label>
+			<label index="tx_dam.tx_jhedamextender_lowlevel_selection">Standardunterteilung der Produktmappe oder ihrer Unterteile</label>
+			<label index="tx_dam.tx_jhedamextender_order">Sortierung innerhalb der Produktmappe (numerisch)</label>
 			<label index="tx_jhedamextender_usage.usage_ea619ffddc">Verwendung</label>
 			<label index="tt_content.list_type_pi1">DAM spezielle Verwendung</label>
 			<label index="tt_content.list_type_pi2">DAM Kategoriemenü</label>
 			<label index="tt_content.list_type_pi3">DAM Navigationsmenü für spezielle Verwendungen</label>
 			<label index="tt_content.list_type_pi4">DAM Dateiliste</label>
 			<label index="tt_content.list_type_pi5">DAM Dokumentenliste</label>
-			<label index="tx_dam.tx_jhedamextender_doctype">Dokumententyp</label>
 			<label index="tx_jhedamextender_doctype">Dokumententyp</label>
 			<label index="tx_jhedamextender_doctype.name">Bezeichnung</label>
 			<label index="tx_jhedamextender_doctype.desciption">Beschreibung</label>

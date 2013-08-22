@@ -84,7 +84,7 @@ $tempColumns = array (
     ),
 	'tx_jhedamextender_doctype' => array (		
 		'exclude' => 1,		
-		'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_dam.tx_jhedamextender_doctype',
+		'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_doctype',
 		'config' => array (
 			'type' => 'select',	
 			'foreign_table' => 'tx_jhedamextender_doctype',	
