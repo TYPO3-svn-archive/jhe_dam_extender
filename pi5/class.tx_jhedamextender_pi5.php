@@ -92,7 +92,35 @@ class tx_jhedamextender_pi5 extends tslib_pibase {
 				});
 			</script>
 		';
+		
+		$js = '
+			<script type="text/javascript" src="typo3conf/ext/jhe_dam_extender/res/js/jquery.listnav-2.1.js?' . time() .'"></script>
+		';
 		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] .= $js;
+		
+		$js = '
+			<script type="text/javascript">
+				$(document).ready(function() {
+					$("#docsByType").before("<div id=\"docsByType-nav\" class=\"listNav\"></div>");
+					
+					$("#docsByType").listnav({
+						includeAll: false,
+						showCounts: false,
+						includeOther: false,
+						flagDisabled: true,
+						noMatchText: "There are no matching entries."
+					}); 
+
+					$(".ln-disabled").contents().unwrap().wrap("<span class=\"ln-disabled\" />");
+
+					$("#doctype_ajaxloader").hide();
+					$("#docsByType").show();
+
+				});
+			</script>
+		';
+		
+		$GLOBALS['TSFE']->additionalFooterData[$this->extKey] .= $js;
 		
 		//create sql query to get all documents with the given flexform selection
 		$where .= ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
@@ -157,8 +185,9 @@ class tx_jhedamextender_pi5 extends tslib_pibase {
 		$content = '';
 
 		//creating output target for ajaxloader and jquery result
-		$content .= '<div id="doctype_ajaxloader" class="hidden" style="text-align: center; margin: 5px;"><img src="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/img/ajaxloader.gif" /></div>';
-		$content .= '<div id="docsByType"><ul class="content">' . $output . '</ul></div>';
+		$content .= '<div id="doctype_ajaxloader" style="text-align: center; margin: 5px;"><img src="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/img/ajaxloader.gif" /></div>';
+		//$content .= '<div id="docsByType"><ul class="content">' . $output . '</ul></div>';
+		$content .= '<ul class="content" id="docsByType">' . $output . '</ul>';
 
         return $this->pi_wrapInBaseClass($content);
     }

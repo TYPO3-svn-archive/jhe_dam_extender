@@ -1,3 +1,8 @@
+2013-08-26 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.4.0
+
+	*pi5: added new jquery lib listnav for the alphabetical selection 
+		  of documents in the list and implemented it
+
 2013-08-22 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.3.2
 
 	*general: deleted reminder text with mysql update statement for 
