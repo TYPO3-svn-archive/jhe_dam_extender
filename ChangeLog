@@ -1,3 +1,9 @@
+2013-09-04 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.5.0
+
+	* general: added a text field to leave a short note which nature 
+			   the current changes of a document are, shall be used in 
+			   jhe_whatsnu
+
 2013-08-26 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.4.0
 
 	*pi5: added new jquery lib listnav for the alphabetical selection 

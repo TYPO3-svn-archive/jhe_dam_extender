@@ -130,12 +130,21 @@ $tempColumns = array (
 			),
 		)
 	),
+	'tx_jhedamextender_note' => array (
+        'exclude' => 1,
+        'label' => 'LLL:EXT:jhe_dam_extender/locallang_db.xml:tx_dam.tx_jhedamextender_note',
+        'config' => array (
+            'type' => 'text',
+            'cols' => '30',
+			'rows' => '8',
+        )
+    ),
 );
 
 
 t3lib_div::loadTCA('tx_dam');
 t3lib_extMgm::addTCAcolumns('tx_dam',$tempColumns,1);
-t3lib_extMgm::addToAllTCAtypes('tx_dam','--div--;Fachthemen;;;;1-1-1, tx_jhedamextender_doctype, tx_jhedamextender_usage, tx_jhedamextender_path, tx_jhedamextender_lowlevel_selection, tx_jhedamextender_order');
+t3lib_extMgm::addToAllTCAtypes('tx_dam','--div--;Fachthemen;;;;1-1-1, tx_jhedamextender_doctype, tx_jhedamextender_note, tx_jhedamextender_usage, tx_jhedamextender_path, tx_jhedamextender_lowlevel_selection, tx_jhedamextender_order');
 
 $TCA['tx_jhedamextender_usage'] = array (
 	'ctrl' => array (

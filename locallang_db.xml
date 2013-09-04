@@ -21,6 +21,7 @@
 			<label index="tt_content.list_type_pi4">DAM file list</label>
 			<label index="tt_content.list_type_pi5">DAM document list</label>
 			<label index="tx_dam.tx_jhedamextender_doctype">Document type</label>
+			<label index="tx_dam.tx_jhedamextender_note">Type of change(s)</label>
 			<label index="tx_jhedamextender_doctype">Document type</label>
 			<label index="tx_jhedamextender_doctype.name">Name</label>
 			<label index="tx_jhedamextender_doctype.desciption">Description</label>
@@ -29,6 +30,7 @@
 			<label index="tx_dam.tx_jhedamextender_usage">Verwendung für</label>
 			<label index="tx_jhedamextender_usage">Medienverwendung</label>
 			<label index="tx_dam.tx_jhedamextender_doctype">Dokumentenart</label>
+			<label index="tx_dam.tx_jhedamextender_note">Art der Änderung(en)</label>
 			<label index="tx_dam.tx_jhedamextender_path">Pfad für die Grobunterteilung der Produktmappe</label>
 			<label index="tx_dam.tx_jhedamextender_lowlevel_selection.I.1">Kunde</label>
 			<label index="tx_dam.tx_jhedamextender_lowlevel_selection.I.2">Vertrieb</label>
