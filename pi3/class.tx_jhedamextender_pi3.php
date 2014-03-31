@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2010 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
+*  (c) 2010-14 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -33,127 +33,124 @@ require_once(t3lib_extMgm::extPath("jhe_dam_extender") . 'util/util.php');
  * @subpackage	tx_jhedamextender
  */
 class tx_jhedamextender_pi3 extends tslib_pibase {
-    var $prefixId      = 'tx_jhedamextender_pi3';		// Same as class name
-    var $scriptRelPath = 'pi3/class.tx_jhedamextender_pi3.php';	// Path to this script relative to the extension dir.
-    var $extKey        = 'jhe_dam_extender';	// The extension key.
-    var $pi_checkCHash = true;
+	var $prefixId      = 'tx_jhedamextender_pi3';		// Same as class name
+	var $scriptRelPath = 'pi3/class.tx_jhedamextender_pi3.php';	// Path to this script relative to the extension dir.
+	var $extKey        = 'jhe_dam_extender';	// The extension key.
+	var $pi_checkCHash = true;
 
-    /**
-    * The main method of the PlugIn
-    *
-    * @param	string		$content: The PlugIn content
-    * @param	array		$conf: The PlugIn configuration
-    * @return	The		content that is displayed on the website
-    */
-    function main($content, $conf) {
-        $this->conf = $conf;
-	$this->pi_setPiVarDefaults();
-	$this->pi_loadLL();
+	/**
+	 * The main method of the PlugIn
+	 *
+	 * @param	string		$content: The PlugIn content
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	The		content that is displayed on the website
+	 */
+	public function main($content, $conf) {
+		$this->conf = $conf;
+		$this->pi_setPiVarDefaults();
+		$this->pi_loadLL();
 
-        //get dam category
-        if(!t3lib_div::_GET('damcat')){
-            $this->pi_initPIFlexForm();
-            $this->conf['selectedCategory'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'catSelector');
-        } else {
-            $this->conf['selectedCategory'] = t3lib_div::_GET('damcat');
-        }
+		//retrieve data from flexform
+		$this->pi_initPIFlexForm();
+		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+		$this->conf['targetPage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'targetPage');
+		$this->conf['selectedCategory'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'catSelector');
+		$this->conf['specialCaseSelector'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'specialCaseSelector');
 
-        if(!$this->conf['selectedCategory']) {
-            $content = '';
-	} else {
-            //$this->pi_initPIFlexForm();
-            $this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
-            $this->conf['targetPage'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'targetPage');
+		//set fallback value for special usage case (uid of Produktmappe)
+		if(!$this->conf['specialCaseSelector']){
+			$this->conf['specialCaseSelector'] = '1';
+		}
 
-            $content='
-                <div' . $this->pi_classParam('specialUsageList') . '>' . $this->getSpecialUsageItems($this->conf) . $this->pi_getLL('err_no_specialusage') .'</div>
-            ';
+		$content='
+			<div' . $this->pi_classParam('specialUsageList') . '>' . $this->getSpecialUsageItems($this->conf) . $this->pi_getLL('err_no_specialusage') .'</div>
+		';
+
+		return $this->pi_wrapInBaseClass($content);
 	}
 
-	return $this->pi_wrapInBaseClass($content);
-    }
+	/**
+	 * Selects all items from a given category and a given special usage case that belong to the special usage
+	 * Counts all items from for a special usage case depending on the category if given
+	 *
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$content: ul content
+	 */
+	public function getSpecialUsageItems($conf) {
+		$util = new util();
+		$this->conf = $conf;
 
-    /**
-    * Selects all items from a given category that belong to the special usage
-    *
-    * @param	array		$conf: PlugIn Configuration
-    * @return	string		$content: ul content
-    */
-    function getSpecialUsageItems($conf) {
-        $util = new util();
-        $this->conf = $conf;
-        $this->pi_loadLL();
+		$this->pi_loadLL();
 
-        //Select all given special usage items from db
-	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'uid,usage_ea619ffddc',
-            'tx_jhedamextender_usage',
-            'tx_jhedamextender_usage.deleted = 0 AND tx_jhedamextender_usage.hidden = 0 AND tx_jhedamextender_usage.pid = ' . $this->conf['mediaFolder']
-	);
+		//select name of special usage case from db
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'uid,usage_ea619ffddc as specialCaseTitle',
+			'tx_jhedamextender_usage',
+			'tx_jhedamextender_usage.uid = ' . $this->conf['specialCaseSelector'] . '  AND tx_jhedamextender_usage.pid = ' . $this->conf['mediaFolder']
+		);
 
-        //Collect every result from $res to a multi dimensional array
-        while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
-            $resArray[] = $row;
-        }
+		while ($row = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
+			$this->conf['title'] = $row['specialCaseTitle'];
+		}
 
-        //loop through every array from $resArray to count the number of records which belong to the given category and to the special usage item
-        foreach($resArray as $i) {
-            $this->conf['title'] = $i['usage_ea619ffddc'];
-            $this->conf['specialUsageId'] = $i['uid'];
+		//count the number of records which belong to the given category and to the special usage item
+		if(!$this->conf['selectedCategory']){
+			$where = ' AND tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialCaseSelector'];
+		} else {
+			$where = ' AND tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialCaseSelector'] . ' AND tx_dam_cat.uid = ' . $this->conf['selectedCategory'];
+		}
 
-            $res_mm = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-                'COUNT(\'tx_dam.*\')',
-		'tx_dam',
-		'tx_dam_mm_cat',
-		'tx_dam_cat',
-		' AND tx_dam.tx_jhedamextender_usage = ' . $i['uid'] . ' AND tx_dam_cat.uid = ' . $this->conf['selectedCategory']
-            );
+		$res_mm = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+			'COUNT(\'tx_dam.*\')',
+			'tx_dam',
+			'tx_dam_mm_cat',
+			'tx_dam_cat',
+			$where
+		);
 
-            //count results
-            $counter = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_mm));
+		//count results
+		$counter = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res_mm));
 
-            //if any results given give back a list item
-            if($counter['0']) {
-                $result .= '<li>' . $this->makeLink($this->conf) . '</li>';
-            }
-        }
+		//if any results given give back a list item
+		if($counter['0']) {
+			$result .= '<li>' . $this->makeLink($this->conf) . '</li>';
+		}
 
-	if(!$result){
-            $content = $util->translate('err_no_specialusage');
-	} else {
-            $content = '<ul>' .$result . '</ul>';
+		if(!$result){
+			$content = $util->translate('err_no_specialusage');
+		} else {
+			$content = '<ul>' .$result . '</ul>';
+		}
+
+		return $content;
 	}
 
-	return $content;
+	/**
+	 * Generates the links
+	 *
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	string		$result: Link to page and category data
+	 */
+	public function makeLink($conf) {
+		$this->conf = $conf;
 
-    }
+		$params = array(
+			'specialUsage' => $this->conf['specialCaseSelector'],
+			'damcat' => $this->conf['selectedCategory'],
+			'no_cache' => 1
+		);
+		$pid = $this->conf['targetPage'];
+		$target = '_self';
 
-    /**
-    * Generates the links
-    *
-    * @param	array		$conf: PlugIn Configuration
-    * @return	string		$result: Link to page and category data
-    */
-    function makeLink($conf) {
-        $this->conf = $conf;
+		$result = $this->pi_linkToPage(
+			$this->conf['title'],
+			$pid,
+			$target,
+			$params
+		);
 
-	$params = array(
-            'specialUsage' => $this->conf['specialUsageId'],
-            'damcat' => $this->conf['selectedCategory'],
-            'no_cache' => 1
-	);
-	$pid = $this->conf['targetPage'];
-	$target = '_self';
-
-	$result = $this->pi_linkToPage(
-            $this->conf['title'],
-            $pid,
-            $target,
-            $params
-	);
-
-	return $result;
-    }
+		return $result;
+	}
 }
 
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi3/class.tx_jhedamextender_pi3.php'])	{

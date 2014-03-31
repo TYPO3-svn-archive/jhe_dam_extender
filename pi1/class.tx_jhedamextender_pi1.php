@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2010 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
+*  (c) 2010-14 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -33,133 +33,138 @@ require_once(t3lib_extMgm::extPath("jhe_dam_extender") . 'util/util.php');
  * @subpackage	tx_jhedamextender
  */
 class tx_jhedamextender_pi1 extends tslib_pibase {
-    var $prefixId      = 'tx_jhedamextender_pi1';		// Same as class name
-    var $scriptRelPath = 'pi1/class.tx_jhedamextender_pi1.php';	// Path to this script relative to the extension dir.
-    var $extKey        = 'jhe_dam_extender';	// The extension key.
-    var $pi_checkCHash = true;
+	var $prefixId      = 'tx_jhedamextender_pi1';		// Same as class name
+	var $scriptRelPath = 'pi1/class.tx_jhedamextender_pi1.php';	// Path to this script relative to the extension dir.
+	var $extKey        = 'jhe_dam_extender';	// The extension key.
+	var $pi_checkCHash = true;
 
-    /**
-    * Main method of your PlugIn
-    *
-    * @param	string		$content: The content of the PlugIn
-    * @param	array		$conf: The PlugIn Configuration
-    * @return	The		content that should be displayed on the website
-    */
-    public function main($content, $conf)	{
-        $this->conf = $conf;
-	$this->pi_setPiVarDefaults();
-	$this->pi_loadLL();
+	/**
+	 * Main method of your PlugIn
+	 *
+	 * @param	string		$content: The content of the PlugIn
+	 * @param	array		$conf: The PlugIn Configuration
+	 * @return	The		content that should be displayed on the website
+	 */
+	public function main($content, $conf)	{
+		$this->conf = $conf;
+		$this->pi_setPiVarDefaults();
+		$this->pi_loadLL();
 
-        //retrieving GET data
-	$this->conf['selectedCategory'] = t3lib_div::_GET('damcat');
-	$this->conf['specialUsage'] = t3lib_div::_GET('specialUsage');
+		$util = new util();
 
-	//retrieving data from be flexform
-	$this->pi_initPIFlexForm();
-	$this->conf['viewMode'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
-	$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
-     $this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
+		//integration of an main css file for styling the html output
+		$css = '<link rel="stylesheet" type="text/css" href="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/css/main.css" />';
+		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey . '_css'] = $css;
+		
+		//retrieving GET data
+		$this->conf['selectedCategory'] = t3lib_div::_GET('damcat');
+		$this->conf['specialUsage'] = t3lib_div::_GET('specialUsage');
 
-	//getting title and folder of special usage
-	$su = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'usage_ea619ffddc',
-            'tx_jhedamextender_usage',
-            'uid = ' . $this->conf['specialUsage']
-	);
-	$suTitle = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($su));
-	$this->conf['suTitle'] = $suTitle['0'];
+		//retrieving data from be flexform
+		$this->pi_initPIFlexForm();
+		$this->conf['viewMode'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'viewMode');
+		$this->conf['mediaFolder'] = $this->pi_getFFvalue($this->cObj->data['pi_flexform'],'mediaFolder');
 
-	//getting mainFolder path from ext_conf_template
-	$extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-	$this->conf['mainFolder'] =$extconf['mainFolder'];
+		//getting title and folder of special usage
+		$su = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'usage_ea619ffddc',
+			'tx_jhedamextender_usage',
+			'uid = ' . $this->conf['specialUsage']
+		);
+		$suTitle = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($su));
+		$this->conf['suTitle'] = $suTitle['0'];
 
-	//creating path to special usage folder
-	$this->conf['folderSpecialUsage'] = $this->conf['mainFolder'].$this->conf['suTitle'];
+		//getting mainFolder path from ext_conf_template
+		$extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
+		$this->conf['mainFolder'] =$extconf['mainFolder'];
 
-	if(!$this->conf['selectedCategory'] || !$this->conf['specialUsage']) {
-            return $this->pi_getLL('err_no_cat');
-	} else {
-            switch($this->conf['viewMode'])	{
-                case 'dlButton':
-                    #if ($this->countChilds($this->conf) == 0 && $this->getNumberofFilesPerCategory($this->conf) != 0) {
-                    if ($this->getNumberofFilesPerCategory($this->conf) != 0) {
-			return $this->pi_wrapInBaseClass($this->dlButtonView($this->conf));
-                    }
-		break;
-		case 'list':
-                default:
-                    return $this->pi_wrapInBaseClass($this->listView($this->conf));
-		break;
-            }
+		//creating path to special usage folder
+		$this->conf['folderSpecialUsage'] = $this->conf['mainFolder'].$this->conf['suTitle'];
+
+		if(!$this->conf['specialUsage']) {
+			$return = $util->translate('err_no_specialusage_get');
+		} else {
+			switch($this->conf['viewMode']){
+				case 'dlButton':
+					if($this->getNumberofFilesPerCategory($this->conf) != 0) {
+						$return = $this->pi_wrapInBaseClass($this->dlButtonView($this->conf));
+					}
+					break;
+				case 'list':
+				default:
+					$return = $this->pi_wrapInBaseClass($this->listView($this->conf));
+					break;
+			}
+		}
+		
+		return $return;
 	}
-    }
 
-    /**
-    * Shows a list of database entries
-    *
-    * @param	string		$content: content of the PlugIn
-    * @param	array		$conf: PlugIn Configuration
-    * @return	HTML		list of table entries
-    */
-    function listView($conf) {
-        $this->conf = $conf;		// Setting the TypoScript passed to this function in $this->conf
-	$this->pi_setPiVarDefaults();
-	$this->pi_loadLL();		// Loading the LOCAL_LANG values
+	/**
+	 * Shows a list of database entries
+	 *
+	 * @param	string		$content: content of the PlugIn
+	 * @param	array		$conf: PlugIn Configuration
+	 * @return	HTML		list of table entries
+	 */
+	public function listView($conf) {
+		$this->conf = $conf;		// Setting the TypoScript passed to this function in $this->conf
+		$this->pi_setPiVarDefaults();
+		$this->pi_loadLL();		// Loading the LOCAL_LANG values
 
-	//integration of an main css file for styling the html output
-	$css = '<link rel="stylesheet" type="text/css" href="' . t3lib_extMgm::siteRelPath($this->extKey) . 'res/css/main.css" />';
-	$GLOBALS['TSFE']->additionalHeaderData[$this->extKey . '_css'] = $css;
+		$content = '';	// Clear var;
+		$content .= '<h3>' .$this->conf['suTitle']. ' ' . $this->getCategoryHeader($this->conf) . '</h3>';
 
-	$content = '';	// Clear var;
-	$content .= '<h3>' .$this->conf['suTitle']. ' ' . $this->getCategoryHeader($this->conf) . '</h3>';
+		//select all tx_dam records for the given category and special usage
+		//put together where clause
+		$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
 
-        //select all tx_dam records for the given category and special usage
-        //put together where clause
-        $GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
+		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+		if($this->conf['selectedCategory']){
+			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
+		}
+		$where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
 
-        $where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-        $where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-        //$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
-        $where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
+		$orderBy = 'tx_dam.tx_jhedamextender_order';
 
-	$orderBy = 'tx_dam.tx_jhedamextender_order';
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+			'tx_dam.*',
+			'tx_dam',
+			'tx_dam_mm_cat',
+			'tx_dam_cat',
+			$where,
+			'',
+			$orderBy
+		);
 
-        $res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-            'tx_dam.*',
-            'tx_dam',
-            'tx_dam_mm_cat',
-            'tx_dam_cat',
-            $where,
-            '',
-            $orderBy
-	);
-        
-        $content .= $this->makelist($res);
+		$content .= $this->makelist($res);
 
-	$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
-	$this->internal['maxPages']=t3lib_div::intInRange($lConf['maxPages'],0,1000,2);;		// The maximum number of "pages" in the browse-box: "Page 1", "Page 2", etc.
+		$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
+		$this->internal['maxPages']=t3lib_div::intInRange($lConf['maxPages'],0,1000,2);;		// The maximum number of "pages" in the browse-box: "Page 1", "Page 2", etc.
 
-        $whereCount = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-	$whereCount .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-	$whereCount .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
-	$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
+		$whereCount = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+		if($this->conf['selectedCategory']){
+			$whereCount .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
+		}
+		$whereCount .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
+		$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
 
-	//Count all results
-	$resCount = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-            'COUNT(\'tx_dam.*\')',
-            'tx_dam',
-            'tx_dam_mm_cat',
-            'tx_dam_cat',
-            $where
-	);
-	list($this->internal['res_count']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($resCount);
-        
-        // Adds the result browser:
-	$content.=$this->pi_list_browseresults();
+		//Count all results
+		$resCount = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+			'COUNT(\'tx_dam.*\')',
+			'tx_dam',
+			'tx_dam_mm_cat',
+			'tx_dam_cat',
+			$where
+		);
+		list($this->internal['res_count']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($resCount);
 
-	// Returns the content from the plugin.
-	return $content;
-    }
+		// Adds the result browser:
+		$content.=$this->pi_list_browseresults();
+
+		// Returns the content from the plugin.
+		return $content;
+	}
 
 	/**
 	 * Creates a list from a database query
@@ -168,7 +173,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	 * @param	[type]		$folder: String with section identifier
 	 * @return	A		HTML list if result items
 	 */
-	function makelist($res)	{
+	public function makelist($res)	{
 		$util = new util();
 
 		// Make list table rows
@@ -190,7 +195,6 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 					$arrFolderPath[] = '';
 				}
 			}
-//t3lib_div::debug($arrFolderPath);
 			$items[]=$this->makeListItem($arrFolderPath);
 		}
 
@@ -213,7 +217,7 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 	 *
 	 * @return	Imploded		column values
 	 */
-	function makeListItem($arrFolderPath)	{
+	public function makeListItem($arrFolderPath)	{
 		$util = new util();
 		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
 		$workingTypes = explode(',',$this->extconf['graphicFileTypes']);
@@ -352,208 +356,208 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		return $content;
 	}
 
-    function mapFileTypeFromPath($path) {
+	public function mapFileTypeFromPath($path) {
 
-        $mapping = array(
+		$mapping = array(
+			'fileadmin/Mediendatenbank/Broschueren/' => 'Broschüre',
+			'fileadmin/Mediendatenbank/Praesentationen/' => 'Präsentation',
+			'fileadmin/Mediendatenbank/Links/' => 'Link',
+			'fileadmin/Mediendatenbank/Zentrale_Aktionen/' => 'nur in Zentrale Aktion',
+			'fileadmin/Mediendatenbank/Produktblaetter/' => 'Produktblatt',
+			'fileadmin/Mediendatenbank/Produktinformationen/' => 'Produktinformation',
+			'fileadmin/Mediendatenbank/Flyer/' => 'Flyer',
+			'fileadmin/Mediendatenbank/Produktmappe/' => 'nur in Produktmappe',
+			'fileadmin/Mediendatenbank/Formblaetter/' => 'Formblatt',
+			'fileadmin/Mediendatenbank/Plakate/' => 'Plakat',
+		);
 
-            'fileadmin/Mediendatenbank/Broschueren/' => 'Broschüre',
-            'fileadmin/Mediendatenbank/Praesentationen/' => 'Präsentation',
-            'fileadmin/Mediendatenbank/Links/' => 'Link',
-            'fileadmin/Mediendatenbank/Zentrale_Aktionen/' => 'nur in Zentrale Aktion',
-            'fileadmin/Mediendatenbank/Produktblaetter/' => 'Produktblatt',
-            'fileadmin/Mediendatenbank/Produktinformationen/' => 'Produktinformation',
-            'fileadmin/Mediendatenbank/Flyer/' => 'Flyer',
-            'fileadmin/Mediendatenbank/Produktmappe/' => 'nur in Produktmappe',
-            'fileadmin/Mediendatenbank/Formblaetter/' => 'Formblatt',
-            'fileadmin/Mediendatenbank/Plakate/' => 'Plakat',
-
-        );
-
-
-        return $mapping[$path];
-    }
-
-    /**
-    * Display a single item from the database
-    *
-    * @param	string		$content: The PlugIn content
-    * @param	array		$conf: The PlugIn configuration
-    * @return	HTML		of a single database entry
-    */
-    function dlButtonView($conf) {
-        $this->conf = $conf;
-	   $util = new util();
-
-	   $this->addJqueryLibrary();
-	   
-        $GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
-            
-            <script type="text/javascript">
-                $(document).ready(function() {
-                    // AJAX Request per eID
-                    $(".dlButton").bind("click", function() {
-					$(".dlButton").hide();
-                    $("#dl_ajaxloader").show();
-                    $.ajax({
-                        url: "?eID=downloadSpecialUsage",
-			data:
-                            "mediaFolder=' . $this->conf['mediaFolder'] .
-                            '&selectCategory=' . $this->conf['selectedCategory'] .
-                            '&specialUsage=' . $this->conf['specialUsage'] . '",
-			success: function(result) {
-							$(".dlButton").show();
-                            $("#dl_ajaxloader").hide();
-                            $("<form action=\'"+result+"\' method=\'post\'></form>").appendTo("body").submit().remove();
-			}
-                    });
-                });
-            });
-            </script>
-	';
-
-	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'usage_ea619ffddc',
-            'tx_jhedamextender_usage',
-            'uid = ' . $this->conf['specialUsage']
-	);
-	$btTitle = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res));
-     $btTitle = $btTitle['0'] . ' ' . $util->translate('lbl_dl_button');
-
-	$content = '
-            <div class="dlButton">
-                ' . $btTitle . '
-            </div>
-            <div id="dl_ajaxloader" class="hidden" style="text-align: center; margin: 5px 5px 10px 5px;">
-                <img src="typo3conf/ext/jhe_dam_extender/res/img/ajaxloader.gif" />
-            </div>
-            <div><small>Mit dem Download-Button können Sie sich die komplette Produktmappe als zip-Datei herunterladen.<br />Dabei werden automatisch alle aktuellen Dokumente zusammengeführt.</small></div>
-        ';
-
-	return $content;
-    }
-
-    /**
-    * Returns the content of a given field
-    *
-    * @param	string		$fN: name of table field
-    * @return	Value		of the field
-    */
-    function getFieldContent($fN)	{
-        switch($fN) {
-            case 'uid':
-                return $this->pi_list_linkSingle($this->internal['currentRow'][$fN],$this->internal['currentRow']['uid'],1);	// The "1" means that the display of single items is CACHED! Set to zero to disable caching.
-            break;
-            default:
-                return $this->internal['currentRow'][$fN];
-            break;
+		return $mapping[$path];
 	}
-    }
 
-    /**
-    * Retrieves directory names from the filesystem
-    *
-    * @param	string		$folder: Folder of the filesystem given the function
-    * @return	array		$arrayFolders: array with all existing folders
-    */
-    public function getFolderNamesFromFilesystem($conf){
-        $this->conf = $conf;
-	$arrFolders = t3lib_div::get_dirs($this->conf['mainFolder']);
+	/**
+	 * Display a single item from the database
+	 *
+	 * @param	string		$content: The PlugIn content
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	HTML		of a single database entry
+	 */
+	public function dlButtonView($conf) {
+		$this->conf = $conf;
+		$util = new util();
 
-	foreach ($arrFolders as $value) {
-            if(t3lib_div::get_dirs($this->conf['mainFolder'].$value . '/') != NULL){
-                $newFolders = t3lib_div::get_dirs($this->conf['mainFolder'].$value . '/');
-		$folders='';
-		foreach ($newFolders as $singleFolder){
-                    $singleFolder = $value .'/' . $singleFolder;
-                    $folders[] = $singleFolder;
+		$this->addJqueryLibrary();
+
+		$GLOBALS['TSFE']->additionalHeaderData[$this->extKey] = '
+			<script type="text/javascript">
+				$(document).ready(function() {
+					// AJAX Request per eID
+					$(".dlButton").bind("click", function() {
+						$(".dlButton").hide();
+						$("#dl_ajaxloader").show();
+						$.ajax({
+							url: "?eID=downloadSpecialUsage",
+							data:
+								"mediaFolder=' . $this->conf['mediaFolder'] .
+								'&selectCategory=' . $this->conf['selectedCategory'] .
+								'&specialUsage=' . $this->conf['specialUsage'] . '",
+							success: function(result) {
+								$(".dlButton").show();
+								$("#dl_ajaxloader").hide();
+								$("<form action=\'"+result+"\' method=\'post\'></form>").appendTo("body").submit().remove();
+							}
+						});
+					});
+				});
+			</script>
+		';
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'usage_ea619ffddc',
+			'tx_jhedamextender_usage',
+			'uid = ' . $this->conf['specialUsage']
+		);
+		$btTitle = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($res));
+		$btTitle = $btTitle['0'] . ' ' . $util->translate('lbl_dl_button');
+
+		$content = '
+			<div class="dlButton">
+				' . $btTitle . '
+			</div>
+			<div id="dl_ajaxloader" class="hidden" style="text-align: center; margin: 5px 5px 10px 5px;">
+				<img src="typo3conf/ext/jhe_dam_extender/res/img/ajaxloader.gif" />
+			</div>
+			<div>
+				<small>Mit dem Download-Button können Sie sich die komplette Produktmappe als zip-Datei herunterladen.<br />Dabei werden automatisch alle aktuellen Dokumente zusammengeführt.</small>
+			</div>
+		';
+
+		return $content;
+	}
+
+	/**
+	 * Returns the content of a given field
+	 *
+	 * @param	string		$fN: name of table field
+	 * @return	Value		of the field
+	 */
+	public function getFieldContent($fN)	{
+		switch($fN) {
+			case 'uid':
+				$return = $this->pi_list_linkSingle($this->internal['currentRow'][$fN],$this->internal['currentRow']['uid'],1);	// The "1" means that the display of single items is CACHED! Set to zero to disable caching.
+				break;
+			default:
+				$return = $this->internal['currentRow'][$fN];
+				break;
 		}
-		$arrFolders = array_merge($arrFolders, $folders);
-            }
+		
+		return $return;
 	}
-	sort($arrFolders);
 
-	return $arrFolders;
-    }
+	/**
+	 * Retrieves directory names from the filesystem
+	 *
+	 * @param	string		$folder: Folder of the filesystem given the function
+	 * @return	array		$arrayFolders: array with all existing folders
+	 */
+	public function getFolderNamesFromFilesystem($conf){
+		$this->conf = $conf;
+		$arrFolders = t3lib_div::get_dirs($this->conf['mainFolder']);
 
-    /**
-    * Selects the category name to be displayed
-    *
-    * @param	array		$conf: The PlugIn configuration
-    * @return	string		$result: Name of the category
-    */
-    public function getCategoryHeader($conf) {
-        $this->conf = $conf;
+		foreach ($arrFolders as $value) {
+			if(t3lib_div::get_dirs($this->conf['mainFolder'].$value . '/') != NULL){
+				$newFolders = t3lib_div::get_dirs($this->conf['mainFolder'].$value . '/');
+				$folders='';
+				foreach ($newFolders as $singleFolder){
+					$singleFolder = $value .'/' . $singleFolder;
+					$folders[] = $singleFolder;
+				}
+				$arrFolders = array_merge($arrFolders, $folders);
+			}
+		}
+		sort($arrFolders);
 
-        $where = 'deleted = 0 AND hidden = 0 AND pid = ' . $this->conf['mediaFolder'] . ' AND uid = ' . $this->conf['selectedCategory'] . '';
+		return $arrFolders;
+	}
 
-	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'title',
-            'tx_dam_cat',
-            $where
-	);
-	list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+	/**
+	 * Selects the category name to be displayed
+	 *
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	string		$result: Name of the category
+	 */
+	public function getCategoryHeader($conf) {
+		$this->conf = $conf;
 
-	return $result;
-    }
+		$where = 'deleted = 0 AND hidden = 0 AND pid = ' . $this->conf['mediaFolder'] . ' AND uid = ' . $this->conf['selectedCategory'] . '';
 
-    /**
-    * Counts childs of a given category
-    *
-    * @param	array		$conf: The PlugIn configuration
-    * @return	string		$result: number of child categories
-    */
-    function countChilds($conf) {
-        $this->conf = $conf;
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'title',
+			'tx_dam_cat',
+			$where
+		);
+		list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 
-	$where = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $this->conf['mediaFolder'] . ' AND tx_dam_cat.parent_id = ' . $this->conf['selectedCategory'];
+		return $result;
+	}
 
-	$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-            'COUNT(tx_dam_cat.title)',
-            'tx_dam_cat',
-            $where
-	);
-	list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+	/**
+	 * Counts childs of a given category
+	 *
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	string		$result: number of child categories
+	 */
+	public function countChilds($conf) {
+		$this->conf = $conf;
 
-        return $result;
-    }
+		$where = 'tx_dam_cat.deleted = 0 AND tx_dam_cat.hidden = 0 AND tx_dam_cat.pid = ' . $this->conf['mediaFolder'] . ' AND tx_dam_cat.parent_id = ' . $this->conf['selectedCategory'];
 
-    /**
-    * Counts the number of files for a given category independent form the folder structure
-    *
-    * @param	array		$conf: The PlugIn configuration
-    * @return	string		$result: Number of files
-    */
-    function getNumberofFilesPerCategory($conf) {
-        $this->conf = $conf;
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'COUNT(tx_dam_cat.title)',
+			'tx_dam_cat',
+			$where
+		);
+		list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 
-	$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam.pid = ' . $this->conf['mediaFolder'] . '';
-	$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-	$where .= ' AND ((tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsage'] . ')';
-	$where .= ' OR (tx_dam.tx_jhedamextender_usage != ' . $this->conf['specialUsage'] .' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
+		return $result;
+	}
 
-	//Count all results
-	$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-            'COUNT(\'tx_dam.*\')',
-            'tx_dam',
-            'tx_dam_mm_cat',
-            'tx_dam_cat',
-            $where
-	);
-	list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+	/**
+	 * Counts the number of files for a given category independent form the folder structure
+	 *
+	 * @param	array		$conf: The PlugIn configuration
+	 * @return	string		$result: Number of files
+	 */
+	public function getNumberofFilesPerCategory($conf) {
+		$this->conf = $conf;
 
-	return $result;
-    }
+		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0 AND tx_dam.pid = ' . $this->conf['mediaFolder'] . '';
+		if($this->conf['selectedCategory']){
+			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
+		}
+		$where .= ' AND ((tx_dam.tx_jhedamextender_usage = ' . $this->conf['specialUsage'] . ')';
+		$where .= ' OR (tx_dam.tx_jhedamextender_usage != ' . $this->conf['specialUsage'] .' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
 
-    function collectDocumentPaths($array, $path){
-#t3lib_div::debug($path);
+		//Count all results
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+			'COUNT(\'tx_dam.*\')',
+			'tx_dam',
+			'tx_dam_mm_cat',
+			'tx_dam_cat',
+			$where
+		);
+		list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
 
-        $array[] = $path;
+		return $result;
+	}
 
-        return $array;
+	public function collectDocumentPaths($array, $path){
 
-    }
+		$array[] = $path;
+
+		return $array;
+	}
 	
-	function addJqueryLibrary(){
+	public function addJqueryLibrary(){
 		// checks if t3jquery is loaded
 		if (t3lib_extMgm::isLoaded('t3jquery')) {
 			require_once(t3lib_extMgm::extPath('t3jquery').'class.tx_t3jquery.php');
@@ -573,5 +577,4 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi1/class.tx_jhedamextender_pi1.php'])	{
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/jhe_dam_extender/pi1/class.tx_jhedamextender_pi1.php']);
 }
-
 ?>

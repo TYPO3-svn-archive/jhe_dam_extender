@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2010 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
+*  (c) 2010-14 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -40,7 +40,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
 		$util = new util();
 
-		//Generate TSFE object to use in ajax class
+		//GenerateTSFE object to use in ajax class
 		$this->cObj = t3lib_div::makeInstance('tslib_cObj');
 		tslib_eidtools::connectDB();
 
@@ -62,6 +62,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		//GET-Params
 		$type = t3lib_div::_GET('docType');
 		$catId = t3lib_div::_GET('catId');
+		$specialUsage = t3lib_div::_GET('specialUsage');
 
 		//get data from ext_local_conf
 		$this->extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
@@ -69,7 +70,12 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
 		//Prepare where clause for select statement
 		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $catId;
+		if($catId){
+			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $catId;
+		}
+		if($specialUsage){
+			$where .= ' AND tx_jhedamextender_usage = ' . $specialUsage;
+		}
 
 		//generate SQL request
 		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
@@ -83,14 +89,13 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		);
 
 		//Make list rows for specific document types
-		$items=array();        
+		$items=array();
 		while($this->internal['currentRow'] = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)){
 			$itemFilePath = strtolower(substr($this->internal['currentRow']['file_path'], strlen($mainFolder), -1));
 			if($itemFilePath == $type){
 				$items[]=$this->makeListItem($this->extconf);
 			}
 		}
-//t3lib_utility_Debug::debug(count($items));
 
 		$linkFolder = strtolower($this->extconf['linkFolder']);
 
@@ -100,15 +105,14 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 				<h4>' . $util->translate($type) . '</h4>
 				<ul class="content">' . implode(chr(10),$items) . '</ul>
 			';
-			
+
 			$jsonReturnArr = array(
-			'content' => $output,
-			'counter' => count($items)
-		);
-		} else {
-			
+				'content' => $output,
+				'counter' => count($items)
+			);
+		} else {	
 			$returnArr = $this->getLinks($this->extconf);
-			
+
 			$output = '
 				<h4>' . $util->translate($type) . '</h4>
 				<ul class="content">' . $returnArr['content'] . '</ul>
@@ -129,7 +133,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 	* @param	array		$extconf: extension configuration variables
 	* @return	Imploded	$output: HTML per column
 	*/
-	function makeListItem($extconf)	{
+	public function makeListItem($extconf)	{
 		$util = new util();
 		$this->extconf = $extconf;
 	
@@ -167,7 +171,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 					break;
 			}
 
-            $original = array(
+			$original = array(
 				'file' => $imgPath,
 			);
 			$originalImg = $this->cObj->IMAGE($original);
@@ -181,7 +185,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 			$preview['imageLinkWrap.']['enable'] = 1;
 			$preview['file.']['width'] = $imgWidthCalc;
 
-            if(t3lib_extMgm::isLoaded('pmkshadowbox')) {  // use Lightbox
+			if(t3lib_extMgm::isLoaded('pmkshadowbox')) {  // use Lightbox
 				$preview['imageLinkWrap.']['typolink.']['title']      = $this->getFieldContent('title');
 				$preview['imageLinkWrap.']['typolink.']['parameter']  = $originalPic;
 				$preview['imageLinkWrap.']['typolink.']['ATagParams'] = ' rel="shadowbox" target="_blank"';
@@ -254,14 +258,13 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 		return $output;
 	}
 
-
 	/**
 	* Gets link data from a predefined txt-file
 	*
 	* @param	array		$extconf: extension configuration variables
 	* @return	Imploded	$output: HTML per column
 	*/
-	function getLinks($extconf) {
+	public function getLinks($extconf) {
 		$this->extconf = $extconf;
 		$util = new util();
 
@@ -284,7 +287,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 
 		$newIcon = '<div class="specialTopicAjaxListNewIcon"></div>';
 		
-        if(file_exists($currentFile)){
+		if(file_exists($currentFile)){
 			$handle = file($currentFile);
 			
 			foreach ($handle as $link) {
@@ -309,7 +312,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 				'counter' => '0'
 			);
 		}
-		
+
 		return $return;
 	}
 
@@ -319,7 +322,7 @@ class ajax_getDocumentsByDirectoryAndCategory extends tslib_pibase {
 	* @param	string		$fN: name of table field
 	* @return	string		Value of the field
 	*/
-	function getFieldContent($fN)	{
+	public function getFieldContent($fN)	{
 		switch($fN) {
 			case 'uid':
 				return $this->pi_list_linkSingle($this->internal['currentRow'][$fN],$this->internal['currentRow']['uid'],1);	// The "1" means that the display of single items is CACHED! Set to zero to disable caching.

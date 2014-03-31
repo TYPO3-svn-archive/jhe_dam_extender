@@ -2,7 +2,7 @@
 /***************************************************************
 *  Copyright notice
 *
-*  (c) 2010 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
+*  (c) 2010-14 Jari-Hermann Ernst <jari-hermann.ernst@bad-gmbh.de>
 *  All rights reserved
 *
 *  This script is part of the TYPO3 project. The TYPO3 project is
@@ -42,8 +42,6 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 		tslib_eidtools::connectDB();
 		$feUserObject = tslib_eidtools::initFeUser();
 
-//$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
-
 		//retrieving GET data
 		$mediaFolder = t3lib_div::_GET('mediaFolder');
 		$selectCategory = t3lib_div::_GET('selectCategory');
@@ -67,23 +65,28 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 		//putting together where clause for getting category title and generating file list items
 		$where = ''; //reset variable
 		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $selectCategory;
+		if($selectCategory){
+			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $selectCategory;
+		}
 		$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $specialUsage . '%\'';
-		//$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $specialUsage .'%\' AND tx_dam.file_path LIKE \''. $folderSpecialUsage .'%\'))';
 
-		//Getting category title
-		$resCat = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-			'tx_dam_cat.title as catTitle, tx_dam.*',
-			'tx_dam',
-			'tx_dam_mm_cat',
-			'tx_dam_cat',
-			$where );
-		$category = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat);
-		$catTitle = $util->replaceUmlauts($category['catTitle']);
+		//Getting category title if given
+		if($selectCategory){
+			$resCat = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+				'tx_dam_cat.title as catTitle, tx_dam.*',
+				'tx_dam',
+				'tx_dam_mm_cat',
+				'tx_dam_cat',
+				$where );
+			$category = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat);
+			$catTitle = $util->replaceUmlauts($category['catTitle']);
+		}
 
 		//putting together where clause for retrieving the related files
 		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $selectCategory;
+		if($selectCategory){
+			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $selectCategory;
+		}
 		$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $specialUsage . '%\'';
 
 		$orderBy = 'tx_dam.tx_jhedamextender_order';
@@ -106,7 +109,11 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 
 		//creating zip file for data
 		$zip = new ZipArchive();
-		$filename = strtolower(str_replace(' ', '_', $suTitle)) . '_' . strtolower(str_replace(' ', '_', $catTitle)) . '_' . date('d-m-Y_Hi', time()). '.zip';
+		if($selectCategory){
+			$filename = strtolower(str_replace(' ', '_', $suTitle)) . '_' . strtolower(str_replace(' ', '_', $catTitle)) . '_' . date('d-m-Y_Hi', time()). '.zip';
+		} else {
+			$filename = strtolower(str_replace(' ', '_', $suTitle)) . '_' . date('d-m-Y_Hi', time()). '.zip';
+		}
 		$path = 'typo3temp/temp/' . $filename;
 
 		if ($zip->open($path, ZIPARCHIVE::CREATE) !== TRUE) {

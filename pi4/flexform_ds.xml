@@ -18,20 +18,33 @@
 						<size>1</size>
 					</config>
 				</TCEforms>
-                        </mediaFolder>
-                        <catSelector>
-                            <TCEforms>
-                                <label>DAM-Kategorie</label>
-                                <config>
-                                    <type>group</type>
-                                    <internal_type>db</internal_type>
-                                    <allowed>tx_dam_cat</allowed>
-                                    <minitems>1</minitems>
-                                    <maxitems>1</maxitems>
-                                    <size>1</size>
-				</config>
-                            </TCEforms>
-                        </catSelector>
+			</mediaFolder>
+			<catSelector>
+				<TCEforms>
+					<label>DAM-Kategorie (für Produktmappen)</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>tx_dam_cat</allowed>
+						<minitems>0</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</catSelector>
+			<specialCaseSelector>
+				<TCEforms>
+					<label>DAM-Verwendung</label>
+					<config>
+						<type>group</type>
+						<internal_type>db</internal_type>
+						<allowed>tx_jhedamextender_usage</allowed>
+						<minitems>0</minitems>
+						<maxitems>1</maxitems>
+						<size>1</size>
+					</config>
+				</TCEforms>
+			</specialCaseSelector>
 		</el>
 	</ROOT>
 </T3DataStructure> 

@@ -14,8 +14,8 @@ $TCA['tx_jhedamextender_usage'] = array (
 			'exclude' => 1,
 			'label'  => 'LLL:EXT:lang/locallang_general.xml:LGL.language',
 			'config' => array (
-				'type'                => 'select',
-				'foreign_table'       => 'sys_language',
+				'type' => 'select',
+				'foreign_table' => 'sys_language',
 				'foreign_table_where' => 'ORDER BY sys_language.title',
 				'items' => array(
 					array('LLL:EXT:lang/locallang_general.xml:LGL.allLanguages', -1),
@@ -25,14 +25,14 @@ $TCA['tx_jhedamextender_usage'] = array (
 		),
 		'l10n_parent' => array (
 			'displayCond' => 'FIELD:sys_language_uid:>:0',
-			'exclude'     => 1,
-			'label'       => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
-			'config'      => array (
+			'exclude' => 1,
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.l18n_parent',
+			'config' => array (
 				'type'  => 'select',
 				'items' => array (
 					array('', 0),
 				),
-				'foreign_table'       => 'tx_jhedamextender_usage',
+				'foreign_table' => 'tx_jhedamextender_usage',
 				'foreign_table_where' => 'AND tx_jhedamextender_usage.pid=###CURRENT_PID### AND tx_jhedamextender_usage.sys_language_uid IN (-1,0)',
 			)
 		),
@@ -43,9 +43,9 @@ $TCA['tx_jhedamextender_usage'] = array (
 		),
 		'hidden' => array (
 			'exclude' => 1,
-			'label'   => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
-			'config'  => array (
-				'type'    => 'check',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config' => array (
+				'type' => 'check',
 				'default' => '0'
 			)
 		),
@@ -74,37 +74,37 @@ $TCA['tx_jhedamextender_doctype'] = array (
 	),
 	'feInterface' => $TCA['tx_jhedamextender_doctype']['feInterface'],
 	'columns' => array (
-		't3ver_label' => array (		
-			'label'  => 'LLL:EXT:lang/locallang_general.xml:LGL.versionLabel',
+		't3ver_label' => array (
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.versionLabel',
 			'config' => array (
 				'type' => 'input',
 				'size' => '30',
 				'max'  => '30',
 			)
 		),
-		'hidden' => array (		
+		'hidden' => array (
 			'exclude' => 1,
-			'label'   => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
-			'config'  => array (
-				'type'    => 'check',
+			'label' => 'LLL:EXT:lang/locallang_general.xml:LGL.hidden',
+			'config' => array (
+				'type' => 'check',
 				'default' => '0'
 			)
 		),
-		'name' => array (		
-			'exclude' => 1,		
-			'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_jhedamextender_doctype.name',		
+		'name' => array (
+			'exclude' => 1,
+			'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_jhedamextender_doctype.name',
 			'config' => array (
-				'type' => 'input',	
-				'size' => '30',	
+				'type' => 'input',
+				'size' => '30',
 				'eval' => 'required,trim',
 			)
 		),
-		'desciption' => array (		
-			'exclude' => 1,		
-			'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_jhedamextender_doctype.desciption',		
+		'desciption' => array (
+			'exclude' => 1,
+			'label' => 'LLL:EXT:jhe_qm_pages/locallang_db.xml:tx_jhedamextender_doctype.desciption',
 			'config' => array (
 				'type' => 'text',
-				'cols' => '30',	
+				'cols' => '30',
 				'rows' => '5',
 			)
 		),
@@ -116,7 +116,4 @@ $TCA['tx_jhedamextender_doctype'] = array (
 		'1' => array('showitem' => '')
 	)
 );
-
-
-
 ?>

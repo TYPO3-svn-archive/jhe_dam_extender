@@ -2,10 +2,10 @@
 # Table structure for table 'tx_dam'
 #
 CREATE TABLE tx_dam (
-    tx_jhedamextender_usage int(11) DEFAULT '0' NOT NULL,
-    tx_jhedamextender_lowlevel_selection varchar(255) DEFAULT '' NOT NULL,
-    tx_jhedamextender_path tinytext,
-    tx_jhedamextender_order int(11) DEFAULT '0' NOT NULL,
+	tx_jhedamextender_usage int(11) DEFAULT '0' NOT NULL,
+	tx_jhedamextender_lowlevel_selection varchar(255) DEFAULT '' NOT NULL,
+	tx_jhedamextender_path tinytext,
+	tx_jhedamextender_order int(11) DEFAULT '0' NOT NULL,
 	tx_jhedamextender_doctype text,
 	tx_jhedamextender_note text,
 );
@@ -25,7 +25,7 @@ CREATE TABLE tx_jhedamextender_usage (
 	deleted tinyint(4) DEFAULT '0' NOT NULL,
 	hidden tinyint(4) DEFAULT '0' NOT NULL,
 	usage_ea619ffddc varchar(255) DEFAULT '' NOT NULL,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid)
 );
@@ -54,7 +54,7 @@ CREATE TABLE tx_jhedamextender_doctype (
 	hidden tinyint(4) DEFAULT '0' NOT NULL,
 	name varchar(255) DEFAULT '' NOT NULL,
 	desciption text,
-	
+
 	PRIMARY KEY (uid),
 	KEY parent (pid),
 	KEY t3ver_oid (t3ver_oid,t3ver_wsid)
