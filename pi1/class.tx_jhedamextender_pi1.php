@@ -113,54 +113,49 @@ class tx_jhedamextender_pi1 extends tslib_pibase {
 		$this->pi_loadLL();		// Loading the LOCAL_LANG values
 
 		$content = '';	// Clear var;
-		$content .= '<h3>' .$this->conf['suTitle']. ' ' . $this->getCategoryHeader($this->conf) . '</h3>';
-
-		//select all tx_dam records for the given category and special usage
-		//put together where clause
-		$GLOBALS['TYPO3_DB']->store_lastBuiltQuery = 1;
-
-		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		if($this->conf['selectedCategory']){
-			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-		}
-		$where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
 
 		$orderBy = 'tx_dam.tx_jhedamextender_order';
 
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-			'tx_dam.*',
-			'tx_dam',
-			'tx_dam_mm_cat',
-			'tx_dam_cat',
-			$where,
-			'',
-			$orderBy
-		);
+		//check if the list should be prepared for a given category or a special usage
+		if($this->conf['selectedCategory'] && $this->conf['specialUsage']){
+			//we have a category case
+			$content .= '<h3>' .$this->conf['suTitle']. ' ' . $this->getCategoryHeader($this->conf) . '</h3>';
+			
+			//select all tx_dam records for the given category
+			//put together where clause
+			$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
+			$where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
+
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+				'tx_dam.*',
+				'tx_dam',
+				'tx_dam_mm_cat',
+				'tx_dam_cat',
+				$where,
+				'',
+				$orderBy
+			);
+		} else if (!$this->conf['selectedCategory'] && $this->conf['specialUsage']){
+			//we have a special usage case
+			$content .= '<h3>' .$this->conf['suTitle']. '</h3>';
+			
+			//select all tx_dam records for the given special usage
+			//put together where clause
+			$where = ' tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+			$where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
+
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'tx_dam.*',
+				'tx_dam',
+				$where,
+				'',
+				$orderBy
+			);
+			
+		}
 
 		$content .= $this->makelist($res);
-
-		$this->internal['results_at_a_time']=t3lib_div::intInRange($lConf['results_at_a_time'],0,1000,50);		// Number of results to show in a listing.
-		$this->internal['maxPages']=t3lib_div::intInRange($lConf['maxPages'],0,1000,2);;		// The maximum number of "pages" in the browse-box: "Page 1", "Page 2", etc.
-
-		$whereCount = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		if($this->conf['selectedCategory']){
-			$whereCount .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
-		}
-		$whereCount .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
-		$where .= ' OR (tx_dam.tx_jhedamextender_usage NOT LIKE \'%' . $this->conf['specialUsage'] .'%\' AND tx_dam.file_path LIKE \''. $this->conf['folderSpecialUsage'] .'%\'))';
-
-		//Count all results
-		$resCount = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-			'COUNT(\'tx_dam.*\')',
-			'tx_dam',
-			'tx_dam_mm_cat',
-			'tx_dam_cat',
-			$where
-		);
-		list($this->internal['res_count']) = $GLOBALS['TYPO3_DB']->sql_fetch_row($resCount);
-
-		// Adds the result browser:
-		$content.=$this->pi_list_browseresults();
 
 		// Returns the content from the plugin.
 		return $content;

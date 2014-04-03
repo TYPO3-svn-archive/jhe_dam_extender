@@ -43,79 +43,94 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 		$feUserObject = tslib_eidtools::initFeUser();
 
 		//retrieving GET data
-		$mediaFolder = t3lib_div::_GET('mediaFolder');
-		$selectCategory = t3lib_div::_GET('selectCategory');
-		$specialUsage = t3lib_div::_GET('specialUsage');
+		$this->conf['mediaFolder'] = t3lib_div::_GET('mediaFolder');
+		$this->conf['selectedCategory'] = t3lib_div::_GET('selectCategory');
+		$this->conf['specialUsage'] = t3lib_div::_GET('specialUsage');
 
 		//getting title and folder of special usage
 		$su = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
 			'usage_ea619ffddc',
 			'tx_jhedamextender_usage',
-			'uid = ' . $specialUsage );
-		$suTitle = array_values($GLOBALS['TYPO3_DB']->sql_fetch_assoc($su));
-		$suTitle = $suTitle['0'];
+			'uid = ' . $this->conf['specialUsage'] );
+		list($suTitle) = $GLOBALS['TYPO3_DB']->sql_fetch_row($su);
 
 		//getting mainFolder path from ext_conf_template
 		$extconf = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][$this->extKey]);
-		$mainFolder = $extconf['mainFolder'];
+		$this->conf['mainFolder'] = $extconf['mainFolder'];
 
-		//creating path to special usage folder
-		$folderSpecialUsage = $mainFolder.$suTitle;
+		$orderBy = 'tx_dam.tx_jhedamextender_order';
+		
+		//check if the list should be prepared for a given category or a special usage
+		if($this->conf['selectedCategory'] && $this->conf['specialUsage']){
+			//we have a category case
 
-		//putting together where clause for getting category title and generating file list items
-		$where = ''; //reset variable
-		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		if($selectCategory){
-			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $selectCategory;
-		}
-		$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $specialUsage . '%\'';
+			//putting together where clause for retrieving the related files
+			$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $this->conf['selectedCategory'];
+			$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $this->conf['specialUsage'] . '%\'';
 
-		//Getting category title if given
-		if($selectCategory){
-			$resCat = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-				'tx_dam_cat.title as catTitle, tx_dam.*',
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
+				'tx_dam.*',
 				'tx_dam',
 				'tx_dam_mm_cat',
 				'tx_dam_cat',
-				$where );
-			$category = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($resCat);
-			$catTitle = $util->replaceUmlauts($category['catTitle']);
+				$where,
+				'',
+				$orderBy
+			);
+
+			//prepare filename for zip file
+			$filename = strtolower(str_replace(' ', '_', $suTitle)) . '_' . strtolower(str_replace(' ', '_', $this->getCategoryTitle($this->conf))) . '_' . date('d-m-Y_Hi', time()). '.zip';
+		} else if (!$this->conf['selectedCategory'] && $this->conf['specialUsage']){
+			//we have a special usage case
+			
+			$where = ' tx_dam.deleted = 0 AND tx_dam.hidden = 0';
+			$where .= ' AND tx_dam.tx_jhedamextender_usage  = ' . $this->conf['specialUsage'];
+
+			$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+				'tx_dam.*',
+				'tx_dam',
+				$where,
+				'',
+				$orderBy
+			);
+
+			//prepare filename for zip file
+			$filename = strtolower(str_replace(' ', '_', $suTitle)) . '_' . date('d-m-Y_Hi', time()). '.zip';
 		}
 
-		//putting together where clause for retrieving the related files
-		$where = ' AND tx_dam.deleted = 0 AND tx_dam.hidden = 0';
-		if($selectCategory){
-			$where .= ' AND tx_dam_mm_cat.uid_foreign = ' . $selectCategory;
-		}
-		$where .= ' AND tx_dam.tx_jhedamextender_usage LIKE \'%' . $specialUsage . '%\'';
-
-		$orderBy = 'tx_dam.tx_jhedamextender_order';
-
-		$res = $GLOBALS['TYPO3_DB']->exec_SELECT_mm_query(
-			'tx_dam.*',
-			'tx_dam',
-			'tx_dam_mm_cat',
-			'tx_dam_cat',
-			$where,
-			'',
-			$orderBy
-		);
-	 
 		//Getting the list for every directory which is not empty
 		$items = array();
 		while ($currentRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res)) {
 			$items[] = $currentRow;
 		}
 
+		$path = $this->createZipFile($items, $filename);
+
+		return $path;
+	}
+
+	public function getCategoryTitle($conf) {
+		$this->conf = $conf;
+
+		$where = 'deleted = 0 AND hidden = 0 AND pid = ' . $this->conf['mediaFolder'] . ' AND uid = ' . $this->conf['selectedCategory'] . '';
+
+		$res = $GLOBALS['TYPO3_DB']->exec_SELECTquery(
+			'title',
+			'tx_dam_cat',
+			$where
+		);
+		list($result) = $GLOBALS['TYPO3_DB']->sql_fetch_row($res);
+
+		return $result;
+	}
+
+	public function createZipFile($items, $filename){
+		$util = new util();
+
 		//creating zip file for data
 		$zip = new ZipArchive();
-		if($selectCategory){
-			$filename = strtolower(str_replace(' ', '_', $suTitle)) . '_' . strtolower(str_replace(' ', '_', $catTitle)) . '_' . date('d-m-Y_Hi', time()). '.zip';
-		} else {
-			$filename = strtolower(str_replace(' ', '_', $suTitle)) . '_' . date('d-m-Y_Hi', time()). '.zip';
-		}
 		$path = 'typo3temp/temp/' . $filename;
-
 		if ($zip->open($path, ZIPARCHIVE::CREATE) !== TRUE) {
 			exit("cannot open <$path>\n");
 		}
@@ -123,27 +138,23 @@ class ajax_downloadSpecialUsage extends tslib_pibase {
 		foreach($items as $file) {
 			$pathSelection = $file['tx_jhedamextender_path'];
 			$lowlevel_selection = $file['tx_jhedamextender_lowlevel_selection'];
-			if($lowlevel_selection){
-				if($pathSelection){
-					$specialPath = $util->replaceUmlauts(str_replace(' ', '', $pathSelection)) . '/' . $util->replaceUmlauts(str_replace(' ', '', $lowlevel_selection)) .'/';
-				} else {
-					$specialPath = $util->replaceUmlauts(str_replace(' ', '', $lowlevel_selection)) . '/';
-				}
-			} else {
-				if($path){
-					$specialPath = $util->replaceUmlauts(str_replace(' ', '', $pathSelection)) .'/';
-				} else {
-					$specialPath = '/';
-				}
+
+			if($lowlevel_selection && $pathSelection){
+				$specialPath = str_replace('_::_', '/', $util->replaceUmlauts(str_replace(' ', '_', $pathSelection))) . '/' . $util->replaceUmlauts(str_replace(' ', '_', $lowlevel_selection)) .'/';
+			} elseif ($lowlevel_selection && !$pathSelection) {
+				$specialPath = $util->replaceUmlauts(str_replace(' ', '_', $lowlevel_selection)) . '/';
+			} elseif (!$lowlevel_selection && $pathSelection) {
+				$specialPath = str_replace('_::_', '/', $util->replaceUmlauts(str_replace(' ', '_', $pathSelection))) .'/';
+			} else{
+				$specialPath = '/';
 			}
 
 			$zip->addFile($file['file_path'] . $file['file_name'], $specialPath . $file['tx_jhedamextender_order'] . '_' . $file['file_name']);
 			$specialPath = '';
 		}
 
-		$countFiles = $zip->numFiles;
 		$zip->close();
-			 
+		
 		return $path;
 	}
 }

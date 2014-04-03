@@ -72,11 +72,11 @@ $tempColumns = array (
 		'config' => array (
 			'type' => 'input',
 			'size' => '4',
-			'max' => '4',
+			'max' => '12',
 			'eval' => 'int',
 			'checkbox' => '0',
 			'range'    => array (
-				'upper' => '1000000',
+				'upper' => '100000000000',
 				'lower' => '1'
 			),
 			'default' => 0

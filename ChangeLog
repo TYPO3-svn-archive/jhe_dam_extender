@@ -1,3 +1,15 @@
+2014-04-02 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.6.0
+
+	* main:	changed the length of the order field to map the more 
+			complex way that is needed for the Arbeitsschutzhandbuch
+	* pi1:	changed function listView to correct the selection of 
+			affected files (no more duplicates, no more missing files 
+			without category)
+	* ajax:	changed download function to correct the selection of 
+			affected files (no more duplicates, no more missing files 
+			without category)
+			put some code into new functions to refactor a bit
+
 2014-03-31 Jari-Hermann Ernst  <jari-hermann.ernst@bad-gmbh.de> V0.6.0
 
 	* pi4:	added special usage param to ajax request
